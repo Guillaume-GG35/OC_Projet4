@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+
+""" MODELE """
+
+import controleur
+from tinydb import TinyDB, where
+
+DB = TinyDB("data.json")
+
+
+class Joueur:
+    def __init__(self, **kwargs):
+        self.nom = kwargs.get("nom")
+        self.prenom = kwargs.get("prenom")
+        self.date_naissance = kwargs.get("date_naissance")
+        self.identifiant = kwargs.get("identifiant")
+        self.nombre_points = float(kwargs.get("nombre_points", 0))
+        self.nombre_exempte = kwargs.get("nombre_exempte", 0)
+
+    def gagnant(self):
+        self.nombre_points += 1
+
+    def match_nul(self):
+        self.nombre_points += 0.5
+
+
+class Tournoi:
+    tour_actuel = 1
+
+    def __init__(self, **kwargs):
+        self.identifiant = kwargs.get("identifiant")
+        self.nom = kwargs.get("nom")
+        self.lieu = kwargs.get("lieu")
+        self.date_debut = controleur.date_maintenant()
+        self.date_fin = kwargs.get("date_fin")
+        self.nombre_tours = kwargs.get("nombre_tours", 4)
+        self.liste_joueurs = kwargs.get("id_joueurs")
+        self.description = kwargs.get("description")
+
+    def calculer_nombre_joueurs(self):
+        nombre_joueurs = len(self.liste_joueurs)
+        return nombre_joueurs
+
+    def fin(self):
+        self.date_fin = controleur.date_maintenant()
+
+
+class Tour:
+    def __init__(self, numero_tour, tournoi_associe):
+        self.nom = "Round " + str(numero_tour)
+        self.tournoi_associe = tournoi_associe
+        self.date_debut = controleur.date_maintenant()
+
+    def fin(self):
+        self.date_fin = controleur.date_maintenant()
+
+
+class Match:
+    date_fin = ""
+    gagnant = ""
+
+    def __init__(self, nom_tournoi, no_tour, joueur1, joueur2):
+        self.nom_tournoi = nom_tournoi
+        self.no_tour = no_tour
+        self.joueur1 = joueur1
+        self.joueur2 = joueur2
+
+    def joueur_gagnant(self, id_gagnant):
+        self.gagnant = id_gagnant
+
+    def fin(self):
+        self.date_fin = controleur.date_maintenant()
+
+
+def selection_bdd(nom_fichier_db):
+    db = TinyDB(nom_fichier_db)
+    return db
+
+
+def table(db, categorie):
+    table = db.table(categorie)
+    return table
+
+
+def ajout_donnees_json(nom_fichier_db, categorie, donnees):
+    db = selection_bdd(nom_fichier_db)
+    table(db, categorie).insert(donnees)
+
+
+def recherche_donnees_json(
+    nom_fichier_db, categorie, nom_recherche, chercher_saisie_utilisateur
+):
+    db = selection_bdd(nom_fichier_db)
+    recherche = table(db, categorie).search(
+        where(nom_recherche) == chercher_saisie_utilisateur
+    )
+    return recherche
+
+
+def recherche_table(nom_fichier_db, categorie):
+    db = selection_bdd(nom_fichier_db)
+    recherche = table(db, categorie).all()
+    return recherche
+
+
+def actualisation_element_db(
+    nom_fichier_db, categorie, cle, valeur, element, nom_element
+):
+    db = selection_bdd(nom_fichier_db)
+    table(db, categorie).update({cle: valeur}, where(element) == nom_element)

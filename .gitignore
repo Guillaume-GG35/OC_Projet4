@@ -1,0 +1,9 @@
+#Ignorer les dossiers :
+__pycache__
+env
+historique
+
+#Ignorer les fichiers :
+data.json
+old_data.json
+test.py

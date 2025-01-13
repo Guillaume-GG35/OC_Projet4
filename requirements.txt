@@ -1,0 +1,9 @@
+markdown-it-py==3.0.0
+mdurl==0.1.2
+prompt-toolkit==3.0.36
+Pygments==2.18.0
+questionary==2.0.1
+rich==13.9.4
+shortuuid==1.0.13
+tinydb==4.8.2
+wcwidth==0.2.13
