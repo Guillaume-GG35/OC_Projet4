@@ -56,14 +56,16 @@ class Tour:
 
 
 class Match:
-    date_fin = ""
-    gagnant = ""
 
-    def __init__(self, nom_tournoi, no_tour, joueur1, joueur2):
+    def __init__(self, nom_tournoi, nom_tour, no_match, joueur1, joueur2):
         self.nom_tournoi = nom_tournoi
-        self.no_tour = no_tour
+        self.nom_tour = nom_tour
+        self.no_match = no_match
+        self.date_debut = controleur.date_maintenant()
+        self.date_fin = ""
         self.joueur1 = joueur1
         self.joueur2 = joueur2
+        self.gagnant = ""
 
     def joueur_gagnant(self, id_gagnant):
         self.gagnant = id_gagnant

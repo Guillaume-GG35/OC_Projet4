@@ -9,13 +9,13 @@ from datetime import datetime
 import shortuuid
 import os
 import random
+import itertools
 
 
 def menus_disponibles(id_menu):
     match id_menu:
         case "principal":
-            # Entrées du menu principal => Créer un menu pour la sauvegarde et le chargement des données
-            # La sauvegarde est automatique à chaque fin de match + l'utilisateur doit pouvoir sauvegarder l'état du tournoi manuellement
+            # Entrées du menu principal
             choix_disponibles = [
                 "1-Joueurs",
                 "2-Tournois",
@@ -30,7 +30,7 @@ def menus_disponibles(id_menu):
                 "0-Retour au menu principal",
             ]
         case "tournoi":
-            # Entrées du menu Tournois => Ajouter 'lancer un nouveau tour' (car tournoi peut être lancé en amont)
+            # Entrées du menu Tournois
             choix_disponibles = [
                 "1-Préparer un nouveau tournoi",
                 "2-Afficher les infos d'un tournoi",
@@ -150,7 +150,6 @@ def afficher_donnees(categorie, donnees):
 def rechercher_liste_joueurs(nom_db, id_joueurs):
     if len(id_joueurs) == 1:
         id_joueur = id_joueurs[0]
-        # La fonction donnees_a_rechercher() renvoie une liste contenant un dictionnaire extrait de la DB
         return donnees_a_rechercher(nom_db, "joueur", "identifiant", id_joueur)[0]
     else:
         infos_joueurs = []
@@ -224,16 +223,16 @@ def ajouter_joueur_dans_tournoi(categorie):
     donnees = donnees[0]
     fichier = chemin_fichier(donnees["identifiant"])
     if not fichier_donnees_existe(fichier):
-        for element in donnees["liste_joueurs"]:
+        for element in donnees["id_joueurs"]:
             if element == id_nouveau_joueur:
                 vue.joueur_existant(id_nouveau_joueur)
                 run()
-        donnees["liste_joueurs"].append(id_nouveau_joueur)
+        donnees["id_joueurs"].append(id_nouveau_joueur)
         modele.actualisation_element_db(
             DB,
             categorie,
-            "liste_joueurs",
-            donnees["liste_joueurs"],
+            "id_joueurs",
+            donnees["id_joueurs"],
             "nom",
             nom_tournoi,
         )
@@ -263,7 +262,9 @@ def fichier_donnees_existe(chemin_fichier):
         return True
 
 
-def generer_appariements(nom_db, liste_id_joueurs, liste_joueurs_triee, no_tour):
+def generer_appariements(
+    nom_db, liste_id_joueurs, liste_joueurs_triee, no_tour, combinaisons_possibles
+):
     matchs = []
     if len(liste_id_joueurs) % 2 != 0:
         if no_tour == 1:
@@ -285,23 +286,43 @@ def generer_appariements(nom_db, liste_id_joueurs, liste_joueurs_triee, no_tour)
                 id for id in liste_id_joueurs if id != joueur_exempte["identifiant"]
             ]
     else:
-        liste_id_joueurs_finale = liste_id_joueurs
+        liste_id_joueurs_finale = list(liste_id_joueurs)
         joueur_exempte = ""
 
-    for i in range(0, len(liste_id_joueurs_finale) - 1, 2):
-        if i + 1 <= len(liste_id_joueurs_finale):
-            joueur1 = donnees_a_rechercher(
-                DB, "joueur", "identifiant", liste_id_joueurs_finale[i]
-            )[0]
-            joueur2 = donnees_a_rechercher(
-                DB, "joueur", "identifiant", liste_id_joueurs_finale[i + 1]
-            )[0]
-            matchs.append(
-                [
-                    (joueur1["identifiant"], joueur1["nombre_points"]),
-                    (joueur2["identifiant"], joueur2["nombre_points"]),
-                ]
-            )
+    while len(liste_id_joueurs_finale) > 0:
+        i = 0
+        j = 1
+        match_a_tester = tuple(
+            sorted((liste_id_joueurs_finale[i], liste_id_joueurs_finale[j]))
+        )
+        match_valide = False
+        while not match_valide:
+            if (
+                j < len(liste_id_joueurs_finale) - 1
+                and match_a_tester not in combinaisons_possibles
+            ):
+                j += 1
+                match_a_tester = (
+                    liste_id_joueurs_finale[i],
+                    liste_id_joueurs_finale[j],
+                )
+            else:
+                match_valide = True
+                joueur1 = donnees_a_rechercher(
+                    DB, "joueur", "identifiant", liste_id_joueurs_finale[i]
+                )[0]
+                joueur2 = donnees_a_rechercher(
+                    DB, "joueur", "identifiant", liste_id_joueurs_finale[j]
+                )[0]
+                matchs.append(
+                    [
+                        (joueur1["identifiant"], joueur1["nombre_points"]),
+                        (joueur2["identifiant"], joueur2["nombre_points"]),
+                    ]
+                )
+                liste_id_joueurs_finale.remove(joueur1["identifiant"])
+                liste_id_joueurs_finale.remove(joueur2["identifiant"])
+
     return joueur_exempte, matchs
 
 
@@ -400,12 +421,27 @@ def classement_tournoi(db_tournoi, liste_joueurs):
     return classement
 
 
+def combinaisons_possibles(liste_id_triee):
+    combinaisons_possibles = []
+    for combinaison in itertools.combinations(liste_id_triee, 2):
+        combinaisons_possibles.append(tuple(sorted(combinaison)))
+
+    return combinaisons_possibles
+
+
 def demarrer_tournoi_prepare(categorie):
     nom_tournoi = vue.lancer_tournoi()
     liste_donnees_tournoi = donnees_a_rechercher(DB, categorie, "nom", nom_tournoi)
     donnees_tournoi = liste_donnees_tournoi[0]
-    print(donnees_tournoi)
     tournoi = modele.Tournoi(**donnees_tournoi)
+    modele.actualisation_element_db(
+        DB,
+        "tournoi",
+        "date_debut",
+        tournoi.date_debut,
+        "identifiant",
+        tournoi.identifiant,
+    )
     db_tournoi = fichier_donnees_tournoi(tournoi.identifiant, tournoi.nom)
     injecter_joueurs_db_tournoi(db_tournoi, tournoi.liste_joueurs)
 
@@ -414,6 +450,9 @@ def demarrer_tournoi_prepare(categorie):
         vue.afficher_nom_round(tour.nom)
         if tournoi.tour_actuel == 1:
             liste_id_triee = ordre_joueurs_aleatoire(tournoi.liste_joueurs)
+
+            combinaisons_matchs_possibles = combinaisons_possibles(liste_id_triee)
+
             liste_joueurs_triee = rechercher_liste_joueurs(db_tournoi, liste_id_triee)
         else:
             liste_joueurs_triee = trier_joueurs_par_points(
@@ -425,6 +464,7 @@ def demarrer_tournoi_prepare(categorie):
             liste_id_triee,
             liste_joueurs_triee,
             tournoi.tour_actuel,
+            combinaisons_matchs_possibles,
         )
         donnees_joueur_exempte = appariements[0]
         if donnees_joueur_exempte != "":
@@ -432,21 +472,32 @@ def demarrer_tournoi_prepare(categorie):
             joueur_exempte = modele.Joueur(**donnees_joueur_exempte)
 
         liste_matchs = appariements[1]
-        no_match = 1
+        print(liste_matchs)
         for element in liste_matchs:
+            id1, _ = element[0]
+            id2, _ = element[1]
+            match_a_tester = (id1, id2)
+            match_a_tester_ordonne = tuple(sorted(match_a_tester))
+            try:
+                combinaisons_matchs_possibles.remove(match_a_tester_ordonne)
+            except ValueError:
+                pass
+        no_match = 1
+        for round in liste_matchs:
             liste_joueurs = [
                 modele.Joueur(**rechercher_liste_joueurs(db_tournoi, [joueur[0]]))
-                for joueur in element
+                for joueur in round
             ]
             joueur1 = liste_joueurs[0]
             joueur2 = liste_joueurs[1]
             match_x = modele.Match(
                 tournoi.nom,
                 tour.nom,
-                joueur1.__dict__,
-                joueur2.__dict__,
+                no_match,
+                joueur1.identifiant,
+                joueur2.identifiant,
             )
-            modele.ajout_donnees_json(db_tournoi, "matchs", match_x.__dict__)
+            # modele.ajout_donnees_json(db_tournoi, "matchs", match_x.__dict__)
             vue.liste_matchs(joueur1, joueur2, no_match)
             id_gagnant = vue.saisie_id_gagnant()
             while (
@@ -457,27 +508,28 @@ def demarrer_tournoi_prepare(categorie):
                 vue.erreur_saisie()
                 id_gagnant = vue.saisie_id_gagnant()
             match_x.fin()
-            if id_gagnant == joueur1.identifiant:
-                joueur1.gagnant()
-                match_x.joueur_gagnant(joueur1.identifiant)
-                actualiser_points_joueur(
-                    db_tournoi, joueur1.nombre_points, joueur1.identifiant
-                )
-            elif id_gagnant == joueur2.identifiant:
-                joueur2.gagnant()
-                match_x.joueur_gagnant(joueur2.identifiant)
-                actualiser_points_joueur(
-                    db_tournoi, joueur2.nombre_points, joueur2.identifiant
-                )
-            else:
-                joueur1.match_nul()
-                joueur2.match_nul()
-                actualiser_points_joueur(
-                    db_tournoi, joueur1.nombre_points, joueur1.identifiant
-                )
-                actualiser_points_joueur(
-                    db_tournoi, joueur2.nombre_points, joueur2.identifiant
-                )
+            match id_gagnant:
+                case joueur1.identifiant:
+                    joueur1.gagnant()
+                    match_x.joueur_gagnant(joueur1.identifiant)
+                    actualiser_points_joueur(
+                        db_tournoi, joueur1.nombre_points, joueur1.identifiant
+                    )
+                case joueur2.identifiant:
+                    joueur2.gagnant()
+                    match_x.joueur_gagnant(joueur2.identifiant)
+                    actualiser_points_joueur(
+                        db_tournoi, joueur2.nombre_points, joueur2.identifiant
+                    )
+                case "":
+                    joueur1.match_nul()
+                    joueur2.match_nul()
+                    actualiser_points_joueur(
+                        db_tournoi, joueur1.nombre_points, joueur1.identifiant
+                    )
+                    actualiser_points_joueur(
+                        db_tournoi, joueur2.nombre_points, joueur2.identifiant
+                    )
             modele.ajout_donnees_json(db_tournoi, "matchs", match_x.__dict__)
             vue.sauvegarde("match")
             no_match += 1
@@ -492,6 +544,14 @@ def demarrer_tournoi_prepare(categorie):
             if tour_suivant_accord_utilisateur == "N":
                 run()
     tournoi.fin()
+    modele.actualisation_element_db(
+        DB,
+        "tournoi",
+        "date_fin",
+        tournoi.date_fin,
+        "identifiant",
+        tournoi.identifiant,
+    )
     modele.ajout_donnees_json(db_tournoi, categorie, tournoi.__dict__)
     vue.tournoi_termine(tournoi.identifiant, tournoi.nom)
     classement = classement_tournoi(db_tournoi, tournoi.liste_joueurs)

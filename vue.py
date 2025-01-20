@@ -182,6 +182,7 @@ def afficher_infos(categorie, donnees):
                 f"[bold yellow]Nom du tournoi : [/bold yellow][bold white]{donnees['nom']}\n[/bold white]",
                 f"[bold yellow]Lieu : [/bold yellow][bold white]{donnees['lieu']}\n[/bold white]",
                 f"[bold yellow]Date de début : [/bold yellow][bold white]{donnees['date_debut']}\n[/bold white]",
+                f"[bold yellow]Date de fin : [/bold yellow][bold white]{donnees['date_fin']}\n[/bold white]",
                 f"[bold yellow]Nombre de tours : [/bold yellow][bold white]{donnees['nombre_tours']}\n[/bold white]",
                 f"[bold yellow]Liste des participants : [/bold yellow]",
             )
