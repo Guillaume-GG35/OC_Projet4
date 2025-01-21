@@ -340,7 +340,7 @@ def fin_tour(nom):
 def tour_suivant():
     saisie_utilisateur = input("Souhaitez-vous lancer le tour suivant ? [o/N] : ")
     while saisie_utilisateur != "o" and saisie_utilisateur != "N":
-        message_erreur_Yes_no()
+        message_erreur_yes_No()
         saisie_utilisateur = input("Souhaitez-vous lancer le tour suivant ? [o/N] : ")
     return saisie_utilisateur
 

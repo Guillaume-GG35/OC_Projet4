@@ -41,6 +41,14 @@ class Tournoi:
         nombre_joueurs = len(self.liste_joueurs)
         return nombre_joueurs
 
+    def calculer_nombre_match_par_tour(self):
+        nombre_joueurs = self.calculer_nombre_joueurs()
+        if nombre_joueurs % 2 != 0:
+            nombre_matchs_par_tour = (nombre_joueurs - 1) / 2
+        else:
+            nombre_matchs_par_tour = nombre_joueurs / 2
+        return nombre_matchs_par_tour
+
     def fin(self):
         self.date_fin = controleur.date_maintenant()
 
