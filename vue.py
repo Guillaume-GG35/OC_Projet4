@@ -309,7 +309,7 @@ def joueur_exempte(nom_joueur, prenom_joueur, id_joueur):
     )
 
 
-def liste_matchs(joueur1, joueur2, no_match):
+def annonce_match(joueur1, joueur2, no_match):
     CONSOLE.print(
         f"[white]Le Match n°{no_match} oppose [bold]{joueur1.prenom} {joueur1.nom} ({joueur1.identifiant})[/bold][/white]",
         f"[white]et [bold]{joueur2.prenom} {joueur2.nom} ({joueur2.identifiant})[/bold][/white]",

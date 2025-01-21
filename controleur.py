@@ -444,52 +444,87 @@ def demarrer_tournoi_prepare(categorie):
     )
     db_tournoi = fichier_donnees_tournoi(tournoi.identifiant, tournoi.nom)
     injecter_joueurs_db_tournoi(db_tournoi, tournoi.liste_joueurs)
-    lancer_tours(tournoi, db_tournoi, "", "tournoi")
+    lancer_tours(tournoi, db_tournoi, "", "tournoi", "new", "", "")
 
 
-def lancer_tours(tournoi, db_tournoi, combinaisons_matchs_possibles, categorie):
+def lancer_tours(
+    tournoi,
+    db_tournoi,
+    combinaisons_matchs_possibles,
+    categorie,
+    type_lancement,
+    liste_matchs,
+    no_match,
+):
     premier_tour = tournoi.tour_actuel
+
     for tournoi.tour_actuel in range(premier_tour, int(tournoi.nombre_tours) + 1):
         tour = modele.Tour(tournoi.tour_actuel, tournoi.nom)
         vue.afficher_nom_round(tour.nom)
+
         if tournoi.tour_actuel == 1:
             liste_id_triee = ordre_joueurs_aleatoire(tournoi.liste_joueurs)
-
-            combinaisons_matchs_possibles = combinaisons_possibles(liste_id_triee)
-            matchs_possibles = {
-                "nom": "matchs_possibles",
-                "matchs_jouables": combinaisons_matchs_possibles,
-            }
-            modele.ajout_donnees_json(
-                db_tournoi,
-                "liste_matchs_possibles",
-                matchs_possibles,
+            matchs_possibles = modele.recherche_donnees_json(
+                db_tournoi, "liste_matchs_possibles", "nom", "matchs_possibles"
             )
 
+            if matchs_possibles == []:
+                combinaisons_matchs_possibles = combinaisons_possibles(liste_id_triee)
+                matchs_possibles = {
+                    "nom": "matchs_possibles",
+                    "matchs_jouables": combinaisons_matchs_possibles,
+                }
+                modele.ajout_donnees_json(
+                    db_tournoi,
+                    "liste_matchs_possibles",
+                    matchs_possibles,
+                )
+
             liste_joueurs_triee = rechercher_liste_joueurs(db_tournoi, liste_id_triee)
+
         else:
             liste_joueurs_triee = trier_joueurs_par_points(
                 db_tournoi, tournoi.liste_joueurs
             )
             liste_id_triee = [joueur["identifiant"] for joueur in liste_joueurs_triee]
-        appariements = generer_appariements(
-            db_tournoi,
-            liste_id_triee,
-            liste_joueurs_triee,
-            tournoi.tour_actuel,
-            combinaisons_matchs_possibles,
-        )
-        donnees_joueur_exempte = appariements[0]
-        if donnees_joueur_exempte != "":
-            afficher_joueur_exempte(donnees_joueur_exempte)
-            joueur_exempte = modele.Joueur(**donnees_joueur_exempte)
 
-        liste_matchs = appariements[1]
+        if type_lancement == "load" and liste_matchs != []:
+            donnees_joueur_exempte = ""
+            type_lancement = ""
+
+        else:
+            no_match = 1
+            appariements = generer_appariements(
+                db_tournoi,
+                liste_id_triee,
+                liste_joueurs_triee,
+                tournoi.tour_actuel,
+                combinaisons_matchs_possibles,
+            )
+            donnees_joueur_exempte = appariements[0]
+
+            if donnees_joueur_exempte != "":
+                afficher_joueur_exempte(donnees_joueur_exempte)
+                joueur_exempte = modele.Joueur(**donnees_joueur_exempte)
+                affecter_point_joueur_exempte(db_tournoi, joueur_exempte)
+
+            liste_matchs = appariements[1]
+
+            i = 1
+            for element in liste_matchs:
+                donnees_match = {"nom": "match " + str(i), "donnees": element}
+                modele.ajout_donnees_json(
+                    db_tournoi,
+                    "liste_matchs_round_" + str(tournoi.tour_actuel),
+                    donnees_match,
+                )
+                i += 1
         for element in liste_matchs:
             id1, _ = element[0]
             id2, _ = element[1]
             match_a_tester = (id1, id2)
             match_a_tester_ordonne = tuple(sorted(match_a_tester))
+
             try:
                 combinaisons_matchs_possibles.remove(match_a_tester_ordonne)
                 modele.actualisation_element_db(
@@ -500,13 +535,14 @@ def lancer_tours(tournoi, db_tournoi, combinaisons_matchs_possibles, categorie):
                     "nom",
                     "matchs_possibles",
                 )
+
             except ValueError:
                 pass
-        no_match = 1
-        for round in liste_matchs:
+
+        for match_tournoi in liste_matchs:
             liste_joueurs = [
                 modele.Joueur(**rechercher_liste_joueurs(db_tournoi, [joueur[0]]))
-                for joueur in round
+                for joueur in match_tournoi
             ]
             joueur1 = liste_joueurs[0]
             joueur2 = liste_joueurs[1]
@@ -517,7 +553,7 @@ def lancer_tours(tournoi, db_tournoi, combinaisons_matchs_possibles, categorie):
                 joueur1.identifiant,
                 joueur2.identifiant,
             )
-            vue.liste_matchs(joueur1, joueur2, no_match)
+            vue.annonce_match(joueur1, joueur2, no_match)
             id_gagnant = vue.saisie_id_gagnant()
             while (
                 id_gagnant != joueur1.identifiant
@@ -549,19 +585,24 @@ def lancer_tours(tournoi, db_tournoi, combinaisons_matchs_possibles, categorie):
                     actualiser_points_joueur(
                         db_tournoi, joueur2.nombre_points, joueur2.identifiant
                     )
-            modele.ajout_donnees_json(db_tournoi, "matchs", match_x.__dict__)
+            modele.ajout_donnees_json(
+                db_tournoi,
+                "matchs_termines_round_" + str(tournoi.tour_actuel),
+                match_x.__dict__,
+            )
             vue.sauvegarde("match")
             no_match += 1
-        if donnees_joueur_exempte != "":
-            affecter_point_joueur_exempte(db_tournoi, joueur_exempte)
+
         tour.fin()
         vue.fin_tour(tour.nom)
         modele.ajout_donnees_json(db_tournoi, "tours", tour.__dict__)
         vue.sauvegarde("tour")
+
         if tournoi.tour_actuel < int(tournoi.nombre_tours):
             tour_suivant_accord_utilisateur = vue.tour_suivant()
             if tour_suivant_accord_utilisateur == "N":
                 run()
+
     tournoi.fin()
     modele.actualisation_element_db(
         DB,
@@ -680,7 +721,7 @@ def sous_menu(categorie):
                     tournoi = modele.Tournoi(**donnees_tournoi)
 
                     db_tournoi = chemin_fichier(tournoi.identifiant)
-                    # nombre_matchs_par_tour = tournoi.calculer_nombre_match_par_tour()
+                    nombre_matchs_par_tour = tournoi.calculer_nombre_match_par_tour()
 
                     for i in range(1, int(tournoi.nombre_tours) + 1):
                         donnees = modele.recherche_donnees_json(
@@ -697,8 +738,45 @@ def sous_menu(categorie):
                         tuple(element) for element in data_matchs_possibles
                     ]
 
+                    donnees_matchs = []
+                    for j in range(1, int(nombre_matchs_par_tour) + 1):
+                        try:
+                            donnees_matchs.append(
+                                modele.recherche_donnees_json(
+                                    db_tournoi,
+                                    "liste_matchs_round_" + str(tournoi.tour_actuel),
+                                    "nom",
+                                    "match " + str(j),
+                                )[0]["donnees"]
+                            )
+                        except IndexError:
+                            pass
+
+                    for element in donnees_matchs:
+                        element[0] = tuple(element[0])
+                        element[1] = tuple(element[1])
+
+                    for i in range(1, int(nombre_matchs_par_tour) + 1):
+                        donnees = modele.recherche_donnees_json(
+                            db_tournoi,
+                            "matchs_termines_round_" + str(tournoi.tour_actuel),
+                            "no_match",
+                            i,
+                        )
+                        if donnees == []:
+                            no_match = i
+                            break
+                        else:
+                            donnees_matchs.pop(i - 1)
+
                     lancer_tours(
-                        tournoi, db_tournoi, combinaisons_matchs_possibles, categorie
+                        tournoi,
+                        db_tournoi,
+                        combinaisons_matchs_possibles,
+                        categorie,
+                        "load",
+                        donnees_matchs,
+                        no_match,
                     )
 
 
