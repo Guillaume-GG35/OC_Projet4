@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+
+from Vue import message_erreur, message_succes, information_utilisateur
+from Controleur import menu, verifications, interactions_controleur_modele
+
+import shortuuid
+import os
+import itertools
+from datetime import datetime
+
+
+def date_maintenant():
+    date = datetime.now()
+    maintenant = date.strftime("%d/%m/%Y - %H:%M")
+    return maintenant
+
+
+def generer_id():
+    identifiant = shortuuid.ShortUUID().random(length=6)
+    return identifiant
+
+
+def concat_id_joueurs(id_joueurs):
+    liste_joueurs = id_joueurs.split()
+    return liste_joueurs
+
+
+def retour_menu(element):
+    if element == "*":
+        menu.run()
+
+
+def creer_db_tournoi(db_tournoi):
+    with open(db_tournoi, "x") as f:
+        pass
+
+
+def chemin_fichier(id_tournoi):
+    fichier = os.path.join("historique", id_tournoi + ".json")
+    return fichier
+
+
+def fichier_donnees_tournoi(id_tournoi, nom_tournoi):
+    db_tournoi = chemin_fichier(id_tournoi)
+    os.makedirs("historique", exist_ok=True)
+    if not verifications.fichier_donnees_existe(db_tournoi):
+        creer_db_tournoi(db_tournoi)
+        message_succes.creation_fichier_db_tournoi(db_tournoi)
+    else:
+        confirmation = information_utilisateur.demande_suppr_db_tournoi(db_tournoi)
+        match confirmation:
+            case "O":
+                os.remove(db_tournoi)
+                creer_db_tournoi(db_tournoi)
+                message_succes.fichier_ecrase(db_tournoi)
+            case "n":
+                message_erreur.lancer_tournoi_impossible(nom_tournoi)
+                menu.run()
+    return db_tournoi
+
+
+def afficher_tournois(nom_db, categorie, cle, valeur, mode):
+    os.makedirs("historique", exist_ok=True)
+    liste_tournois = interactions_controleur_modele.donnees_a_rechercher(
+        nom_db, categorie, cle, valeur
+    )
+    liste_tournois_finale = [element for element in liste_tournois]
+    if liste_tournois:
+        i = 0
+        for element in liste_tournois:
+            id_tournoi = element["identifiant"]
+            fichier = chemin_fichier(id_tournoi)
+            if verifications.fichier_donnees_existe(fichier):
+                match mode:
+                    case "pret":
+                        liste_tournois_finale.pop(i)
+                        i -= 1
+            else:
+                match mode:
+                    case "en_cours":
+                        liste_tournois_finale.pop(i)
+                        i -= 1
+
+            i += 1
+        information_utilisateur.liste_simple_tournois(liste_tournois_finale)
+    return liste_tournois_finale
+
+
+def combinaisons_possibles(liste_id_triee):
+    combinaisons_possibles = []
+    for combinaison in itertools.combinations(liste_id_triee, 2):
+        combinaisons_possibles.append(tuple(sorted(combinaison)))
+
+    return combinaisons_possibles

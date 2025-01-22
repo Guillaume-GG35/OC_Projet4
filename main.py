@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import controleur
+from Controleur import menu
 
 if __name__ == "__main__":
     while True:
-        controleur.run()
+        menu.run()
