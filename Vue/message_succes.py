@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from constantes import CONSOLE
+from Controleur.constantes import CONSOLE
 
 
 def fin_programme():
@@ -24,7 +24,8 @@ def creation_fichier_db_tournoi(chemin_fichier):
 
 def fichier_ecrase(chemin_fichier):
     CONSOLE.print(
-        f"Le fichier '{chemin_fichier}' contenant les données du tournoi a été vidé.",
+        f"Le fichier '{chemin_fichier}' ",
+        "contenant les données du tournoi a été vidé.",
         style="bold green",
         end="\n\n",
     )

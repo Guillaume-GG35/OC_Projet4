@@ -14,13 +14,15 @@ from Controleur import (
     menu,
 )
 
-from constantes import *
+from Controleur.constantes import DB
 
 
 def demarrer_tournoi_prepare(categorie):
     nom_tournoi = saisie_utilisateur.lancer_tournoi()
-    liste_donnees_tournoi = interactions_controleur_modele.donnees_a_rechercher(
-        DB, categorie, "nom", nom_tournoi
+    liste_donnees_tournoi = (
+        interactions_controleur_modele.donnees_a_rechercher(
+            DB, categorie, "nom", nom_tournoi
+        )
     )
     donnees_tournoi = liste_donnees_tournoi[0]
     tournoi = classes.Tournoi(**donnees_tournoi)
@@ -52,12 +54,16 @@ def lancer_tours(
 ):
     premier_tour = tournoi.tour_actuel
 
-    for tournoi.tour_actuel in range(premier_tour, int(tournoi.nombre_tours) + 1):
+    for tournoi.tour_actuel in range(
+        premier_tour, int(tournoi.nombre_tours) + 1
+    ):
         tour = classes.Tour(tournoi.tour_actuel, tournoi.nom)
         information_utilisateur.afficher_nom_round(tour.nom)
 
         if tournoi.tour_actuel == 1:
-            liste_id_triee = preparation.ordre_joueurs_aleatoire(tournoi.liste_joueurs)
+            liste_id_triee = preparation.ordre_joueurs_aleatoire(
+                tournoi.liste_joueurs
+            )
             matchs_possibles = fonctions_modele.recherche_donnees_json(
                 db_tournoi, "liste_matchs_possibles", "nom", "matchs_possibles"
             )
@@ -86,7 +92,9 @@ def lancer_tours(
             liste_joueurs_triee = preparation.trier_joueurs_par_points(
                 db_tournoi, tournoi.liste_joueurs
             )
-            liste_id_triee = [joueur["identifiant"] for joueur in liste_joueurs_triee]
+            liste_id_triee = [
+                joueur["identifiant"] for joueur in liste_joueurs_triee
+            ]
 
         if type_lancement == "load" and liste_matchs != []:
             donnees_joueur_exempte = ""
@@ -218,7 +226,9 @@ def lancer_tours(
         "identifiant",
         tournoi.identifiant,
     )
-    fonctions_modele.ajout_donnees_json(db_tournoi, categorie, tournoi.__dict__)
+    fonctions_modele.ajout_donnees_json(
+        db_tournoi, categorie, tournoi.__dict__
+    )
     information_utilisateur.tournoi_termine(tournoi.identifiant, tournoi.nom)
     classement = classement_tournoi(db_tournoi, tournoi.liste_joueurs)
     information_utilisateur.classement_tournoi(classement)
@@ -232,15 +242,19 @@ def reprendre_tournoi(categorie):
     if liste_tournois_en_cours == []:
         menu.run()
 
-    noms_tournois_en_cours = [tournoi["nom"] for tournoi in liste_tournois_en_cours]
+    noms_tournois_en_cours = [
+        tournoi["nom"] for tournoi in liste_tournois_en_cours
+    ]
 
     nom_tournoi = saisie_utilisateur.lancer_tournoi()
     while nom_tournoi not in noms_tournois_en_cours:
         message_erreur.erreur_saisie()
         nom_tournoi = saisie_utilisateur.lancer_tournoi()
 
-    liste_donnees_tournoi = interactions_controleur_modele.donnees_a_rechercher(
-        DB, categorie, "nom", nom_tournoi
+    liste_donnees_tournoi = (
+        interactions_controleur_modele.donnees_a_rechercher(
+            DB, categorie, "nom", nom_tournoi
+        )
     )
     donnees_tournoi = liste_donnees_tournoi[0]
     tournoi = classes.Tournoi(**donnees_tournoi)
@@ -306,9 +320,14 @@ def reprendre_tournoi(categorie):
 
 
 def classement_tournoi(db_tournoi, liste_joueurs):
-    donnees_classement = preparation.trier_joueurs_par_points(db_tournoi, liste_joueurs)
-    classement = [
-        f"{joueur['identifiant']} - {joueur['nom']} {joueur['prenom']} : {joueur['nombre_points']} points"
-        for joueur in donnees_classement
-    ]
+    donnees_classement = preparation.trier_joueurs_par_points(
+        db_tournoi, liste_joueurs
+    )
+    classement = []
+    for joueur in donnees_classement:
+        id = joueur["identifiant"]
+        nom = joueur["nom"]
+        prenom = joueur["prenom"]
+        nb_points = joueur["nombre_points"]
+        classement.append(f"{id} - {nom} {prenom} : {nb_points} points")
     return classement

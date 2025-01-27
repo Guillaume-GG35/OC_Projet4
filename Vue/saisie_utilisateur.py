@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 
-from constantes import *
 from Controleur import (
     fonctions_controleur,
     verifications,
     interactions_controleur_modele,
 )
 from Vue import message_erreur
+
+from Controleur.constantes import (
+    CONSOLE,
+    DB,
+    STRING,
+    NUM_OR_EMPTY,
+    STR_OR_NUM,
+    STRNUM_OR_EMPTY,
+)
 
 
 class Menu:
@@ -35,13 +43,15 @@ def saisie_nouveau(categorie):
             date_correcte = ""
             while not date_correcte:
                 date_naissance = input(
-                    "Entrez la date de naissance du nouveau joueur (JJ/MM/AAAA) : "
+                    "Entrez la date de naissance du",
+                    " nouveau joueur (JJ/MM/AAAA) : ",
                 )
                 fonctions_controleur.retour_menu(date_naissance)
                 date_correcte = verifications.verifier_date(date_naissance)
                 if not date_correcte:
                     CONSOLE.print(
-                        "SAISIE INCORRECTE : Veuillez entrer une date au format JJ/MM/AAAA",
+                        "SAISIE INCORRECTE : Veuillez entrer",
+                        " une date au format JJ/MM/AAAA",
                         style="bold red",
                     )
 
@@ -62,7 +72,9 @@ def saisie_nouveau(categorie):
                 "nombre de tours (valeur par défaut = 4)", NUM_OR_EMPTY
             )
             nombre_tours = verifications.valider_nombre_tours(nombre_tours)
-            id_joueurs = saisie_utilisateur("identifiants des joueurs", STR_OR_NUM)
+            id_joueurs = saisie_utilisateur(
+                "identifiants des joueurs", STR_OR_NUM
+            )
             liste_joueurs = fonctions_controleur.concat_id_joueurs(id_joueurs)
             description = saisie_utilisateur("description", STRING)
 
@@ -82,7 +94,8 @@ def saisie_nouveau(categorie):
 def saisie_utilisateur(type_nom, type_donnee):
     while True:
         saisie_utilisateur = input(
-            f"(* = Menu principal) Entrez l'information suivante - {str.upper(type_nom)} : "
+            "(* = Menu principal) Entrez ",
+            f"l'information suivante - {str.upper(type_nom)} : ",
         )
         fonctions_controleur.retour_menu(saisie_utilisateur)
         if verifications.valider(saisie_utilisateur, type_donnee):
@@ -98,8 +111,12 @@ def saisie_utilisateur_recherche(categorie):
             return id_joueur
         case "tournoi":
             print()
-            CONSOLE.print("[bold cyan]Liste des tournois disponibles :[/bold cyan]")
-            liste_tournois = interactions_controleur_modele.rechercher_tournois(DB)
+            CONSOLE.print(
+                "[bold cyan]Liste des tournois disponibles :[/bold cyan]"
+            )
+            liste_tournois = (
+                interactions_controleur_modele.rechercher_tournois(DB)
+            )
             for element in liste_tournois:
                 print("- " + element)
             print()
@@ -113,13 +130,19 @@ def lancer_tournoi():
 
 
 def saisie_id_gagnant():
-    gagnant = saisie_utilisateur("id du gagnant (vide = match nul)", STRNUM_OR_EMPTY)
+    gagnant = saisie_utilisateur(
+        "id du gagnant (vide = match nul)", STRNUM_OR_EMPTY
+    )
     return gagnant
 
 
 def tour_suivant():
-    saisie_utilisateur = input("Souhaitez-vous lancer le tour suivant ? [o/N] : ")
+    saisie_utilisateur = input(
+        "Souhaitez-vous lancer le tour suivant ? [o/N] : "
+    )
     while saisie_utilisateur != "o" and saisie_utilisateur != "N":
         message_erreur.message_erreur_yes_No()
-        saisie_utilisateur = input("Souhaitez-vous lancer le tour suivant ? [o/N] : ")
+        saisie_utilisateur = input(
+            "Souhaitez-vous lancer le tour suivant ? [o/N] : "
+        )
     return saisie_utilisateur

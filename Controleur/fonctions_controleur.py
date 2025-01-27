@@ -31,23 +31,32 @@ def retour_menu(element):
 
 
 def creer_db_tournoi(db_tournoi):
-    with open(db_tournoi, "x") as f:
+    with open(db_tournoi, "x"):
         pass
 
 
 def chemin_fichier(id_tournoi):
-    fichier = os.path.join("historique", id_tournoi + ".json")
+    fichier = os.path.join(
+        "data", "tournaments", "historique", id_tournoi + ".json"
+    )
     return fichier
+
+
+def chemin_dossier():
+    dossier = os.path.join("data", "tournaments", "historique")
+    return dossier
 
 
 def fichier_donnees_tournoi(id_tournoi, nom_tournoi):
     db_tournoi = chemin_fichier(id_tournoi)
-    os.makedirs("historique", exist_ok=True)
+    os.makedirs(chemin_dossier, exist_ok=True)
     if not verifications.fichier_donnees_existe(db_tournoi):
         creer_db_tournoi(db_tournoi)
         message_succes.creation_fichier_db_tournoi(db_tournoi)
     else:
-        confirmation = information_utilisateur.demande_suppr_db_tournoi(db_tournoi)
+        confirmation = information_utilisateur.demande_suppr_db_tournoi(
+            db_tournoi
+        )
         match confirmation:
             case "O":
                 os.remove(db_tournoi)
@@ -60,7 +69,7 @@ def fichier_donnees_tournoi(id_tournoi, nom_tournoi):
 
 
 def afficher_tournois(nom_db, categorie, cle, valeur, mode):
-    os.makedirs("historique", exist_ok=True)
+    os.makedirs(chemin_dossier(), exist_ok=True)
     liste_tournois = interactions_controleur_modele.donnees_a_rechercher(
         nom_db, categorie, cle, valeur
     )

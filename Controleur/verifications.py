@@ -96,7 +96,7 @@ def nom_tournoi_existe(nom_db, nom_tournoi):
 
 def fichier_donnees_existe(chemin_fichier):
     try:
-        with open(chemin_fichier, "x") as fichier:
+        with open(chemin_fichier, "x"):
             pass
         os.remove(chemin_fichier)
         return False

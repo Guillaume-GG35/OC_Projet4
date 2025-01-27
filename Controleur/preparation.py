@@ -14,13 +14,15 @@ from Controleur import (
     menu,
 )
 
-from constantes import *
+from Controleur.constantes import DB, STRING, STR_OR_NUM
 
 import random
 
 
 def ajouter_joueur_dans_tournoi(categorie):
-    nom_tournoi = saisie_utilisateur.saisie_utilisateur("nom du tournoi", STRING)
+    nom_tournoi = saisie_utilisateur.saisie_utilisateur(
+        "nom du tournoi", STRING
+    )
     id_nouveau_joueur = saisie_utilisateur.saisie_utilisateur(
         "id du nouveau joueur", STR_OR_NUM
     )
@@ -56,13 +58,19 @@ def ajouter_joueur_dans_tournoi(categorie):
 
 
 def generer_appariements(
-    nom_db, liste_id_joueurs, liste_joueurs_triee, no_tour, combinaisons_possibles
+    nom_db,
+    liste_id_joueurs,
+    liste_joueurs_triee,
+    no_tour,
+    combinaisons_possibles,
 ):
     matchs = []
     if len(liste_id_joueurs) % 2 != 0:
         if no_tour == 1:
-            joueur_exempte = interactions_controleur_modele.rechercher_liste_joueurs(
-                nom_db, [liste_id_joueurs[-1]]
+            joueur_exempte = (
+                interactions_controleur_modele.rechercher_liste_joueurs(
+                    nom_db, [liste_id_joueurs[-1]]
+                )
             )
             liste_id_joueurs_finale = liste_id_joueurs[:-1]
         else:
@@ -72,13 +80,16 @@ def generer_appariements(
             for joueur in reversed(liste_joueurs_triee):
                 if (
                     joueur["nombre_exempte"] < valeur_min_exemption
-                    and float(joueur["nombre_points"]) == valeur_min_nombre_points
+                    and float(joueur["nombre_points"])
+                    == valeur_min_nombre_points
                 ):
                     joueur_exempte = joueur
                     valeur_min_exemption = joueur["nombre_exempte"]
 
             liste_id_joueurs_finale = [
-                id for id in liste_id_joueurs if id != joueur_exempte["identifiant"]
+                id
+                for id in liste_id_joueurs
+                if id != joueur_exempte["identifiant"]
             ]
     else:
         liste_id_joueurs_finale = list(liste_id_joueurs)
@@ -138,10 +149,14 @@ def ordre_joueurs_aleatoire(liste_joueurs):
 
 
 def trier_joueurs_par_points(db_tournoi, liste_joueurs):
-    liste_joueurs_a_trier = interactions_controleur_modele.rechercher_liste_joueurs(
-        db_tournoi, liste_joueurs
+    liste_joueurs_a_trier = (
+        interactions_controleur_modele.rechercher_liste_joueurs(
+            db_tournoi, liste_joueurs
+        )
     )
     liste_joueurs_triee = sorted(
-        liste_joueurs_a_trier, key=lambda d: float(d["nombre_points"]), reverse=True
+        liste_joueurs_a_trier,
+        key=lambda d: float(d["nombre_points"]),
+        reverse=True,
     )
     return liste_joueurs_triee
