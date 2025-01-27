@@ -36,8 +36,10 @@ Utilisez la commande suivante :
 <details>
 <summary>Etape 3 - Créer et activer un evironnement virtuel</summary><br>
 
-Placez vous dans le dossier **OC_Projet4** et créez un environnement virtuel avec la commande ``python -m venv env``<br>
-Activez cet environnement avec la commande ``source env/bin/activate``
+Placez vous dans le dossier **OC_Projet4** et créez un environnement virtuel avec la commande<br>
+``python -m venv env``<br>
+Activez cet environnement avec la commande<br>
+``source env/bin/activate``
 
 </details>
 
@@ -45,14 +47,16 @@ Activez cet environnement avec la commande ``source env/bin/activate``
 <summary>Etape 4 - Installer les dépendances</summary><br>
 
 Pour que ce programme s'exécute, vous aurez besoin de plusieurs packages additionnels listés dans le fichier requirements.txt. <br>
-Exécutez la commande ``pip install -r requirements.txt``
+Exécutez la commande <br>
+``pip install -r requirements.txt``
 
 </details>
 
 <details>
 <summary>Etape 5 - Exécuter le programme</summary><br>
 
-Exécutez la commande ``python main.py``
+Exécutez la commande <br>
+``python main.py``
 
 </details>
 
@@ -85,7 +89,7 @@ Le menu **Rapports** permet de :<br>
 - Afficher la liste des tours et des matchs d'un tournoi<br>
 <br>
 Les menus sont navigables en tapant le chiffre de l'action correspondante suivi de la touche entrée pour valider le choix.<br>
-<br>
+
 > [!NOTE]
 > Lors de la première exécution du programme, un message indiquera qu'aucune base de données n'a été trouvée. Ceci est un comportement normal, la base de données sera créée automatiquement lors de la première écriture de données.
 
