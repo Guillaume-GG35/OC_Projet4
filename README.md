@@ -37,7 +37,7 @@ Utilisez la commande suivante :
 <summary>Etape 3 - Créer et activer un evironnement virtuel</summary><br>
 
 Placez vous dans le dossier **OC_Projet4** et créez un environnement virtuel avec la commande<br>
-``python -m venv env``<br><br>
+``python -m venv env``<br>
 
 Activez cet environnement avec la commande<br>
 ``source env/bin/activate``
