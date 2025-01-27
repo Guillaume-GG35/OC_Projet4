@@ -96,7 +96,7 @@ MENU PRINCIPAL<br>
 Les menus sont navigables en tapant le chiffre de l'action correspondante suivi de la touche entrée pour valider le choix.<br>
 <br>
 > [!NOTE]
-> Lors de la première exécution du programme, un message indiquera qu'aucune base de données n'a été trouvée. Ceci est un comportement normal, la base de données sera créée automatiquement lors de la première écriture de données.
+> Lors de la première exécution du programme, un message indiquera que la base de données est vide. Ceci est un comportement normal.
 
 ## Générer un rapport avec flake8-html
 
