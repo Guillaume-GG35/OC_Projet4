@@ -47,7 +47,8 @@ Activez cet environnement avec la commande<br>
 <details>
 <summary>Etape 4 - Installer les dépendances</summary><br>
 
-Pour que ce programme s'exécute, vous aurez besoin de plusieurs packages additionnels listés dans le fichier requirements.txt. <br>
+Pour que ce programme s'exécute, vous aurez besoin de plusieurs packages additionnels listés dans le fichier requirements.txt.<br>
+
 Exécutez la commande <br>
 ``pip install -r requirements.txt``
 
