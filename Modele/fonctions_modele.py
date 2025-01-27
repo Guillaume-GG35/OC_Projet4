@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 from tinydb import TinyDB, where
+from Controleur.constantes import DB
 
-DB = TinyDB("data.json")
+DB = TinyDB(DB)
 
 
 def selection_bdd(nom_fichier_db):
