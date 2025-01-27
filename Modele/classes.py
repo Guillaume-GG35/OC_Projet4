@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 
-""" MODELE """
-
-import controleur
-from tinydb import TinyDB, where
-
-DB = TinyDB("data.json")
+from Controleur import fonctions_controleur
 
 
 class Joueur:
@@ -31,7 +26,7 @@ class Tournoi:
         self.identifiant = kwargs.get("identifiant")
         self.nom = kwargs.get("nom")
         self.lieu = kwargs.get("lieu")
-        self.date_debut = controleur.date_maintenant()
+        self.date_debut = fonctions_controleur.date_maintenant()
         self.date_fin = kwargs.get("date_fin")
         self.nombre_tours = kwargs.get("nombre_tours", 4)
         self.liste_joueurs = kwargs.get("id_joueurs")
@@ -41,70 +36,42 @@ class Tournoi:
         nombre_joueurs = len(self.liste_joueurs)
         return nombre_joueurs
 
+    def calculer_nombre_match_par_tour(self):
+        nombre_joueurs = self.calculer_nombre_joueurs()
+        if nombre_joueurs % 2 != 0:
+            nombre_matchs_par_tour = (nombre_joueurs - 1) / 2
+        else:
+            nombre_matchs_par_tour = nombre_joueurs / 2
+        return nombre_matchs_par_tour
+
     def fin(self):
-        self.date_fin = controleur.date_maintenant()
+        self.date_fin = fonctions_controleur.date_maintenant()
 
 
 class Tour:
     def __init__(self, numero_tour, tournoi_associe):
         self.nom = "Round " + str(numero_tour)
         self.tournoi_associe = tournoi_associe
-        self.date_debut = controleur.date_maintenant()
+        self.date_debut = fonctions_controleur.date_maintenant()
 
     def fin(self):
-        self.date_fin = controleur.date_maintenant()
+        self.date_fin = fonctions_controleur.date_maintenant()
 
 
 class Match:
-    date_fin = ""
-    gagnant = ""
 
-    def __init__(self, nom_tournoi, no_tour, joueur1, joueur2):
+    def __init__(self, nom_tournoi, nom_tour, no_match, joueur1, joueur2):
         self.nom_tournoi = nom_tournoi
-        self.no_tour = no_tour
+        self.nom_tour = nom_tour
+        self.no_match = no_match
+        self.date_debut = fonctions_controleur.date_maintenant()
+        self.date_fin = ""
         self.joueur1 = joueur1
         self.joueur2 = joueur2
+        self.gagnant = ""
 
     def joueur_gagnant(self, id_gagnant):
         self.gagnant = id_gagnant
 
     def fin(self):
-        self.date_fin = controleur.date_maintenant()
-
-
-def selection_bdd(nom_fichier_db):
-    db = TinyDB(nom_fichier_db)
-    return db
-
-
-def table(db, categorie):
-    table = db.table(categorie)
-    return table
-
-
-def ajout_donnees_json(nom_fichier_db, categorie, donnees):
-    db = selection_bdd(nom_fichier_db)
-    table(db, categorie).insert(donnees)
-
-
-def recherche_donnees_json(
-    nom_fichier_db, categorie, nom_recherche, chercher_saisie_utilisateur
-):
-    db = selection_bdd(nom_fichier_db)
-    recherche = table(db, categorie).search(
-        where(nom_recherche) == chercher_saisie_utilisateur
-    )
-    return recherche
-
-
-def recherche_table(nom_fichier_db, categorie):
-    db = selection_bdd(nom_fichier_db)
-    recherche = table(db, categorie).all()
-    return recherche
-
-
-def actualisation_element_db(
-    nom_fichier_db, categorie, cle, valeur, element, nom_element
-):
-    db = selection_bdd(nom_fichier_db)
-    table(db, categorie).update({cle: valeur}, where(element) == nom_element)
+        self.date_fin = fonctions_controleur.date_maintenant()

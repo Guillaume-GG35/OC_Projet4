@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 from rich.console import Console
+import os
 
 CONSOLE = Console()
-DB = "data.json"
+DB = os.path.join("data", "tournaments", "data.json")
 STRING = "str"
 NUMERIC = "num"
 NUM_OR_EMPTY = "NumOrEmpty"
