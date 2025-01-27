@@ -74,6 +74,7 @@ MENU PRINCIPAL<br>
 - Créer un nouveau joueur
 - Afficher les informations d'un joueur
 <br><br>
+
 2- Le menu **Tournois** permet de :
 - Préparer un nouveau tournoi
 - Afficher les informations d'un tournoi
@@ -81,6 +82,7 @@ MENU PRINCIPAL<br>
 - Afficher les tournois en cours
 - Reprendre un tournoi en cours
 <br><br>
+
 3- Le menu **Rapports** permet de :
 - Afficher la liste des joueurs
 - Afficher la liste des tournois
@@ -88,6 +90,7 @@ MENU PRINCIPAL<br>
 - Afficher la liste des joueurs d'un tournoi
 - Afficher la liste des tours et des matchs d'un tournoi
 <br><br>
+
 Les menus sont navigables en tapant le chiffre de l'action correspondante suivi de la touche entrée pour valider le choix.<br>
 <br>
 > [!NOTE]
