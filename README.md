@@ -70,18 +70,18 @@ MENU PRINCIPAL<br>
 3- Rapports<br>
 0- Quitter<br>
 <br><br>
-Le menu **Joueurs** permet de :
+1- Le menu **Joueurs** permet de :
 - Créer un nouveau joueur
 - Afficher les informations d'un joueur
 <br><br>
-Le menu **Tournois** permet de :
+2- Le menu **Tournois** permet de :
 - Préparer un nouveau tournoi
 - Afficher les informations d'un tournoi
 - Débuter un tournoi préparé
 - Afficher les tournois en cours
 - Reprendre un tournoi en cours
 <br><br>
-Le menu **Rapports** permet de :
+3- Le menu **Rapports** permet de :
 - Afficher la liste des joueurs
 - Afficher la liste des tournois
 - Afficher le nom et la date d'un tournoi
@@ -89,7 +89,7 @@ Le menu **Rapports** permet de :
 - Afficher la liste des tours et des matchs d'un tournoi
 <br><br>
 Les menus sont navigables en tapant le chiffre de l'action correspondante suivi de la touche entrée pour valider le choix.<br>
-<br><br>
+<br>
 > [!NOTE]
 > Lors de la première exécution du programme, un message indiquera qu'aucune base de données n'a été trouvée. Ceci est un comportement normal, la base de données sera créée automatiquement lors de la première écriture de données.
 
