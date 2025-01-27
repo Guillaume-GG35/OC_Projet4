@@ -69,27 +69,27 @@ MENU PRINCIPAL<br>
 2- Tournois<br>
 3- Rapports<br>
 0- Quitter<br>
-<br>
-Le menu **Joueurs** permet de :<br>
-- Créer un nouveau joueur<br>
-- Afficher les informations d'un joueur<br>
-<br>
-Le menu **Tournois** permet de :<br>
-- Préparer un nouveau tournoi<br>
-- Afficher les informations d'un tournoi<br>
-- Débuter un tournoi préparé<br>
-- Afficher les tournois en cours<br>
-- Reprendre un tournoi en cours<br>
-<br>
-Le menu **Rapports** permet de :<br>
-- Afficher la liste des joueurs<br>
-- Afficher la liste des tournois<br>
-- Afficher le nom et la date d'un tournoi<br>
-- Afficher la liste des joueurs d'un tournoi<br>
-- Afficher la liste des tours et des matchs d'un tournoi<br>
-<br>
+<br><br>
+Le menu **Joueurs** permet de :
+- Créer un nouveau joueur
+- Afficher les informations d'un joueur
+<br><br>
+Le menu **Tournois** permet de :
+- Préparer un nouveau tournoi
+- Afficher les informations d'un tournoi
+- Débuter un tournoi préparé
+- Afficher les tournois en cours
+- Reprendre un tournoi en cours
+<br><br>
+Le menu **Rapports** permet de :
+- Afficher la liste des joueurs
+- Afficher la liste des tournois
+- Afficher le nom et la date d'un tournoi
+- Afficher la liste des joueurs d'un tournoi
+- Afficher la liste des tours et des matchs d'un tournoi
+<br><br>
 Les menus sont navigables en tapant le chiffre de l'action correspondante suivi de la touche entrée pour valider le choix.<br>
-
+<br><br>
 > [!NOTE]
 > Lors de la première exécution du programme, un message indiquera qu'aucune base de données n'a été trouvée. Ceci est un comportement normal, la base de données sera créée automatiquement lors de la première écriture de données.
 
