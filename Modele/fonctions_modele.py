@@ -21,13 +21,9 @@ def ajout_donnees_json(nom_fichier_db, categorie, donnees):
     table(db, categorie).insert(donnees)
 
 
-def recherche_donnees_json(
-    nom_fichier_db, categorie, nom_recherche, chercher_saisie_utilisateur
-):
+def recherche_donnees_json(nom_fichier_db, categorie, nom_recherche, chercher_saisie_utilisateur):
     db = selection_bdd(nom_fichier_db)
-    recherche = table(db, categorie).search(
-        where(nom_recherche) == chercher_saisie_utilisateur
-    )
+    recherche = table(db, categorie).search(where(nom_recherche) == chercher_saisie_utilisateur)
     return recherche
 
 
@@ -37,8 +33,6 @@ def recherche_table(nom_fichier_db, categorie):
     return recherche
 
 
-def actualisation_element_db(
-    nom_fichier_db, categorie, cle, valeur, element, nom_element
-):
+def actualisation_element_db(nom_fichier_db, categorie, cle, valeur, element, nom_element):
     db = selection_bdd(nom_fichier_db)
     table(db, categorie).update({cle: valeur}, where(element) == nom_element)

@@ -101,13 +101,13 @@ Les menus sont navigables en tapant le chiffre de l'action correspondante suivi 
 ## Générer un rapport avec flake8-html
 
 Il est possible de générer des rapports avec flake8 au format HTML.<br>
-Pour ceci, entrez les commandes suivantes :<br>
-<br>
-Pour éditer le rapport de la partie **Modèle** :<br>
-``flake8 --format=html --htmldir=rapports_html_modele Modele``<br>
-<br>
-Pour éditer le rapport de la partie **Vue** :<br>
-``flake8 --format=html --htmldir=rapports_html_vue Vue``<br>
-<br>
-Pour éditer le rapport de la partie **Controleur** :<br>
-``flake8 --format=html --htmldir=rapports_html_controleur Controleur``<br>
+Pour ceci, entrez les commandes suivante depuis le répertoire **OC_Projet4** :<br>
+
+Activer l'environnement virtuel :<br>
+``source env/bin/activate``
+
+Lancer la commande pour générer le rapport :<br>
+``flake8``
+
+Un dossier **flake8_rapport** sera créé dans le dossier **OC_Projet4**.<br>
+Pour afficher le rapport, ouvrir le fichier index.html

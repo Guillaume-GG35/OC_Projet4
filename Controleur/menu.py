@@ -65,17 +65,13 @@ def menus_disponibles(id_menu):
 def run():
     # Demande à la vue l'afffichage du menu principal
     entrees_menu_principal = menus_disponibles("principal")
-    menu_principal = saisie_utilisateur.Menu(
-        entrees_menu_principal, "MENU PRINCIPAL"
-    )
+    menu_principal = saisie_utilisateur.Menu(entrees_menu_principal, "MENU PRINCIPAL")
     try:
         if os.path.getsize(DB) == 0:
             message_erreur.json_vide(DB)
     except FileNotFoundError:
         message_erreur.json_introuvable(DB)
-    choix_utilisateur_menu_principal = verifications.obtenir_choix_valide(
-        menu_principal
-    )
+    choix_utilisateur_menu_principal = verifications.obtenir_choix_valide(menu_principal)
 
     match choix_utilisateur_menu_principal:
         case "0":
@@ -139,17 +135,13 @@ def case1(categorie):
                 if verifications.id_joueur_existe(DB, id_joueur):
                     message_erreur.joueur_existant(id_joueur)
                 else:
-                    fonctions_modele.ajout_donnees_json(
-                        DB, categorie, infos_joueur
-                    )
+                    fonctions_modele.ajout_donnees_json(DB, categorie, infos_joueur)
                     message_succes.message_succes()
 
         case "tournoi":
             # Préparer un nouveau tournoi
 
-            infos_nouveau_tournoi = saisie_utilisateur.saisie_nouveau(
-                categorie
-            )
+            infos_nouveau_tournoi = saisie_utilisateur.saisie_nouveau(categorie)
             if infos_nouveau_tournoi == "Menu":
                 return
             else:
@@ -170,17 +162,13 @@ def case1(categorie):
                         message_erreur.erreur_saisie()
                         return
                     if joueur_existant:
-                        fonctions_modele.ajout_donnees_json(
-                            DB, categorie, infos_nouveau_tournoi
-                        )
+                        fonctions_modele.ajout_donnees_json(DB, categorie, infos_nouveau_tournoi)
                         message_succes.message_succes()
 
         case "rapport":
             # Afficher la liste des joueurs
 
-            joueurs = interactions_controleur_modele.rechercher_tous_joueurs(
-                DB
-            )
+            joueurs = interactions_controleur_modele.rechercher_tous_joueurs(DB)
             joueurs = sorted(joueurs)
             information_utilisateur.liste_elements("joueurs")
             for element in joueurs:
@@ -193,9 +181,7 @@ def case2(categorie):
         case "joueur":
             # Afficher les infos d'un joueur
 
-            chercher_saisie_utilisateur = (
-                saisie_utilisateur.saisie_utilisateur_recherche(categorie)
-            )
+            chercher_saisie_utilisateur = saisie_utilisateur.saisie_utilisateur_recherche(categorie)
             if chercher_saisie_utilisateur == "Menu":
                 return
             donnees = interactions_controleur_modele.donnees_a_rechercher(
@@ -209,18 +195,14 @@ def case2(categorie):
         case "tournoi":
             # Afficher les infos d'un tournoi
 
-            chercher_saisie_utilisateur = (
-                saisie_utilisateur.saisie_utilisateur_recherche(categorie)
-            )
+            chercher_saisie_utilisateur = saisie_utilisateur.saisie_utilisateur_recherche(categorie)
             if chercher_saisie_utilisateur == "Menu":
                 return
             donnees = interactions_controleur_modele.donnees_a_rechercher(
                 DB, categorie, "nom", chercher_saisie_utilisateur
             )
             if donnees is not None or donnees != []:
-                interactions_controleur_modele.afficher_donnees(
-                    categorie, donnees
-                )
+                interactions_controleur_modele.afficher_donnees(categorie, donnees)
 
         case "rapport":
             # Afficher la liste des tournois
@@ -237,18 +219,14 @@ def case3(categorie):
         case "tournoi":
             # Ajouter joueur à tournoi préparé
 
-            liste_tournois = fonctions_controleur.afficher_tournois(
-                DB, categorie, "date_debut", "", "pret"
-            )
+            liste_tournois = fonctions_controleur.afficher_tournois(DB, categorie, "date_debut", "", "pret")
             if liste_tournois != []:
                 preparation.ajouter_joueur_dans_tournoi(categorie)
 
         case "rapport":
             # Afficher le nom et la date d'un tournoi
 
-            chercher_saisie_utilisateur = (
-                saisie_utilisateur.saisie_utilisateur_recherche("tournoi")
-            )
+            chercher_saisie_utilisateur = saisie_utilisateur.saisie_utilisateur_recherche("tournoi")
             if chercher_saisie_utilisateur == "Menu":
                 return
             donnees = interactions_controleur_modele.donnees_a_rechercher(
@@ -256,9 +234,7 @@ def case3(categorie):
             )[0]
             nom_du_tournoi = donnees["nom"]
             date_du_tournoi = donnees["date_debut"]
-            information_utilisateur.afficher_donnees_tournoi(
-                nom_du_tournoi, date_du_tournoi
-            )
+            information_utilisateur.afficher_donnees_tournoi(nom_du_tournoi, date_du_tournoi)
 
 
 def case4(categorie):
@@ -267,33 +243,23 @@ def case4(categorie):
         case "tournoi":
             # Démarrer tournoi préparé
 
-            liste_tournois = fonctions_controleur.afficher_tournois(
-                DB, categorie, "date_debut", "", "pret"
-            )
+            liste_tournois = fonctions_controleur.afficher_tournois(DB, categorie, "date_debut", "", "pret")
             if liste_tournois != [] and liste_tournois is not None:
                 tournoi.demarrer_tournoi_prepare(categorie)
 
         case "rapport":
             # Afficher la liste des joueurs d'un tournoi
 
-            chercher_saisie_utilisateur = (
-                saisie_utilisateur.saisie_utilisateur_recherche("tournoi")
-            )
+            chercher_saisie_utilisateur = saisie_utilisateur.saisie_utilisateur_recherche("tournoi")
             if chercher_saisie_utilisateur == "Menu":
                 return
             donnees = interactions_controleur_modele.donnees_a_rechercher(
                 DB, "tournoi", "nom", chercher_saisie_utilisateur
             )[0]
             joueurs_du_tournoi = donnees["id_joueurs"]
-            liste_joueurs = (
-                interactions_controleur_modele.rechercher_liste_joueurs(
-                    DB, joueurs_du_tournoi
-                )
-            )
+            liste_joueurs = interactions_controleur_modele.rechercher_liste_joueurs(DB, joueurs_du_tournoi)
             information_utilisateur.liste_elements("joueurs")
-            joueurs_enregistres = [
-                [joueur["nom"], joueur["prenom"]] for joueur in liste_joueurs
-            ]
+            joueurs_enregistres = [[joueur["nom"], joueur["prenom"]] for joueur in liste_joueurs]
             joueurs_enregistres = sorted(joueurs_enregistres)
             for element in joueurs_enregistres:
                 information_utilisateur.afficher_element("joueur", element)
@@ -305,9 +271,7 @@ def case5(categorie):
         case "tournoi":
             # Afficher les tournois en cours
 
-            fonctions_controleur.afficher_tournois(
-                DB, categorie, "date_fin", "", "en_cours"
-            )
+            fonctions_controleur.afficher_tournois(DB, categorie, "date_fin", "", "en_cours")
 
         case "rapport":
             # Afficher la liste des tours et des matchs d'un tournoi
@@ -343,14 +307,10 @@ def afficher_tournois_et_tours():
         return
     while saisie not in noms_tournois:
         message_erreur.recherche_vide()
-        saisie = saisie_utilisateur.saisie_utilisateur(
-            "nom du tournoi", STRING
-        )
+        saisie = saisie_utilisateur.saisie_utilisateur("nom du tournoi", STRING)
         if saisie == "Menu":
             return
-    donnees = interactions_controleur_modele.donnees_a_rechercher(
-        DB, "tournoi", "nom", saisie
-    )[0]
+    donnees = interactions_controleur_modele.donnees_a_rechercher(DB, "tournoi", "nom", saisie)[0]
     id_tournoi = donnees["identifiant"]
     chemin = fonctions_controleur.chemin_fichier(id_tournoi)
     fichier_existe = verifications.fichier_donnees_existe(chemin)
@@ -359,9 +319,7 @@ def afficher_tournois_et_tours():
         i = 1
         for element in tours:
             tour = []
-            matchs = fonctions_modele.recherche_table(
-                chemin, "matchs_termines_round_" + str(i)
-            )
+            matchs = fonctions_modele.recherche_table(chemin, "matchs_termines_round_" + str(i))
             nom = element["nom"]
             date_debut = element["date_debut"]
             date_fin = element["date_fin"]
@@ -375,15 +333,9 @@ def afficher_tournois_et_tours():
                 joueur1 = element["joueur1"]
                 joueur2 = element["joueur2"]
                 gagnant = element["gagnant"]
-                donnees_j1 = fonctions_modele.recherche_donnees_json(
-                    chemin, "joueur", "identifiant", joueur1
-                )[0]
-                donnees_j2 = fonctions_modele.recherche_donnees_json(
-                    chemin, "joueur", "identifiant", joueur2
-                )[0]
-                donnees_gagnant = fonctions_modele.recherche_donnees_json(
-                    chemin, "joueur", "identifiant", gagnant
-                )
+                donnees_j1 = fonctions_modele.recherche_donnees_json(chemin, "joueur", "identifiant", joueur1)[0]
+                donnees_j2 = fonctions_modele.recherche_donnees_json(chemin, "joueur", "identifiant", joueur2)[0]
+                donnees_gagnant = fonctions_modele.recherche_donnees_json(chemin, "joueur", "identifiant", gagnant)
                 if donnees_gagnant != []:
                     donnees_gagnant = donnees_gagnant[0]
                 match.append(no_match)
@@ -392,9 +344,7 @@ def afficher_tournois_et_tours():
                 if donnees_gagnant == []:
                     match.append("match nul")
                 else:
-                    match.append(
-                        f"{donnees_gagnant["prenom"]} {donnees_gagnant["nom"]}"
-                    )
+                    match.append(f"{donnees_gagnant["prenom"]} {donnees_gagnant["nom"]}")
                 information_utilisateur.afficher_element("matchs", match)
             i += 1
     else:

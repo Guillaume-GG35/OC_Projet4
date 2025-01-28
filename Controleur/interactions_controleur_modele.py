@@ -5,17 +5,9 @@ from Vue import message_erreur, information_utilisateur
 from Controleur.constantes import DB
 
 
-def donnees_a_rechercher(
-    nom_db, categorie, nom_recherche, chercher_saisie_utilisateur
-):
-    donnees = fonctions_modele.recherche_donnees_json(
-        nom_db, categorie, nom_recherche, chercher_saisie_utilisateur
-    )
-    if (
-        categorie == "tournoi"
-        and nom_recherche == "date_debut"
-        and donnees == []
-    ):
+def donnees_a_rechercher(nom_db, categorie, nom_recherche, chercher_saisie_utilisateur):
+    donnees = fonctions_modele.recherche_donnees_json(nom_db, categorie, nom_recherche, chercher_saisie_utilisateur)
+    if categorie == "tournoi" and nom_recherche == "date_debut" and donnees == []:
         information_utilisateur.liste_simple_tournois(donnees)
     elif donnees == [] or donnees == "" or donnees is None:
         message_erreur.recherche_vide()
@@ -31,15 +23,11 @@ def afficher_donnees(categorie, donnees):
 def rechercher_liste_joueurs(nom_db, id_joueurs):
     if len(id_joueurs) == 1:
         id_joueur = id_joueurs[0]
-        return donnees_a_rechercher(
-            nom_db, "joueur", "identifiant", id_joueur
-        )[0]
+        return donnees_a_rechercher(nom_db, "joueur", "identifiant", id_joueur)[0]
     else:
         infos_joueurs = []
         for element in id_joueurs:
-            infos_joueurs.append(
-                *donnees_a_rechercher(nom_db, "joueur", "identifiant", element)
-            )
+            infos_joueurs.append(*donnees_a_rechercher(nom_db, "joueur", "identifiant", element))
         return infos_joueurs
 
 
@@ -61,12 +49,8 @@ def rechercher_tournois(nom_db):
 
 def injecter_joueurs_db_tournoi(db_tournoi, liste_joueurs):
     for element in liste_joueurs:
-        donnees_joueur = donnees_a_rechercher(
-            DB, "joueur", "identifiant", element
-        )
-        fonctions_modele.ajout_donnees_json(
-            db_tournoi, "joueur", donnees_joueur[0]
-        )
+        donnees_joueur = donnees_a_rechercher(DB, "joueur", "identifiant", element)
+        fonctions_modele.ajout_donnees_json(db_tournoi, "joueur", donnees_joueur[0])
 
 
 def actualiser_points_joueur(nom_db, nombre_points, identifiant):

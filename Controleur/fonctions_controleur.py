@@ -38,9 +38,7 @@ def creer_db_tournoi(db_tournoi):
 
 
 def chemin_fichier(id_tournoi):
-    fichier = os.path.join(
-        "data", "tournaments", "historique", id_tournoi + ".json"
-    )
+    fichier = os.path.join("data", "tournaments", "historique", id_tournoi + ".json")
     return fichier
 
 
@@ -57,9 +55,7 @@ def fichier_donnees_tournoi(id_tournoi, nom_tournoi):
         creer_db_tournoi(db_tournoi)
         message_succes.creation_fichier_db_tournoi(db_tournoi)
     else:
-        confirmation = information_utilisateur.demande_suppr_db_tournoi(
-            db_tournoi
-        )
+        confirmation = information_utilisateur.demande_suppr_db_tournoi(db_tournoi)
         match confirmation:
             case "O":
                 os.remove(db_tournoi)
@@ -72,9 +68,7 @@ def fichier_donnees_tournoi(id_tournoi, nom_tournoi):
 
 def afficher_tournois(nom_db, categorie, cle, valeur, mode):
     os.makedirs(chemin_dossier(), exist_ok=True)
-    liste_tournois = fonctions_modele.recherche_donnees_json(
-        nom_db, categorie, cle, valeur
-    )
+    liste_tournois = fonctions_modele.recherche_donnees_json(nom_db, categorie, cle, valeur)
     liste_tournois_finale = [element for element in liste_tournois]
     if liste_tournois:
         i = 0

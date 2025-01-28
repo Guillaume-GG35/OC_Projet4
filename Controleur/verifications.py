@@ -30,27 +30,17 @@ def obtenir_choix_valide(menu):
 def valider(saisie_utilisateur, type_donnee):
     match type_donnee:
         case "str":
-            return not (
-                saisie_utilisateur == ""
-                or any(element.isdigit() for element in saisie_utilisateur)
-            )
+            return not (saisie_utilisateur == "" or any(element.isdigit() for element in saisie_utilisateur))
 
         case "num":
-            return not (
-                saisie_utilisateur == ""
-                or any(element.isalpha() for element in saisie_utilisateur)
-            )
+            return not (saisie_utilisateur == "" or any(element.isalpha() for element in saisie_utilisateur))
 
         case "NumOrEmpty":
             return saisie_utilisateur == "" or saisie_utilisateur.isdigit()
 
         case "StrOrNum":
             saisie_utilisateur = saisie_utilisateur.replace(" ", "")
-            return not (
-                saisie_utilisateur == ""
-                or saisie_utilisateur.isdigit()
-                or saisie_utilisateur.isalpha()
-            )
+            return not (saisie_utilisateur == "" or saisie_utilisateur.isdigit() or saisie_utilisateur.isalpha())
         case "StrNumOrEmpty":
             return (
                 saisie_utilisateur == ""
@@ -77,9 +67,7 @@ def verifier_date(date_str):
 
 
 def id_joueur_existe(nom_db, id_joueur):
-    joueur = fonctions_modele.recherche_donnees_json(
-        nom_db, "joueur", "identifiant", id_joueur
-    )
+    joueur = fonctions_modele.recherche_donnees_json(nom_db, "joueur", "identifiant", id_joueur)
     if joueur == []:
         return False
     else:
@@ -87,9 +75,7 @@ def id_joueur_existe(nom_db, id_joueur):
 
 
 def nom_tournoi_existe(nom_db, nom_tournoi):
-    tournoi = fonctions_modele.recherche_donnees_json(
-        nom_db, "tournoi", "nom", nom_tournoi
-    )
+    tournoi = fonctions_modele.recherche_donnees_json(nom_db, "tournoi", "nom", nom_tournoi)
     if tournoi == []:
         return False
     else:

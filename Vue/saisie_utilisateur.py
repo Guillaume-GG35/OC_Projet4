@@ -117,9 +117,7 @@ def saisie_nouveau(categorie):
 
                 elif champ == "identifiants des joueurs":
                     saisie = saisie_utilisateur(champ, type_champs[i])
-                    liste_joueurs = fonctions_controleur.concat_id_joueurs(
-                        saisie
-                    )
+                    liste_joueurs = fonctions_controleur.concat_id_joueurs(saisie)
                     liste_joueurs.sort()
                     cle = "id_joueurs"
                     infos_tournoi[cle] = liste_joueurs
@@ -161,9 +159,7 @@ def saisie_utilisateur_recherche(categorie):
         case "tournoi":
             print()
             information_utilisateur.texte_liste_disponible("tournois")
-            liste_tournois = (
-                interactions_controleur_modele.rechercher_tournois(DB)
-            )
+            liste_tournois = interactions_controleur_modele.rechercher_tournois(DB)
             for element in liste_tournois:
                 print("- " + element)
             print()
@@ -183,9 +179,7 @@ def lancer_tournoi():
 
 
 def saisie_id_gagnant():
-    gagnant = saisie_utilisateur(
-        "id du gagnant (vide = match nul)", STRNUM_OR_EMPTY
-    )
+    gagnant = saisie_utilisateur("id du gagnant (vide = match nul)", STRNUM_OR_EMPTY)
     if gagnant == "*":
         return "Menu"
     else:
@@ -193,12 +187,8 @@ def saisie_id_gagnant():
 
 
 def tour_suivant():
-    saisie_utilisateur = input(
-        "Souhaitez-vous lancer le tour suivant ? [o/N] : "
-    )
+    saisie_utilisateur = input("Souhaitez-vous lancer le tour suivant ? [o/N] : ")
     while saisie_utilisateur != "o" and saisie_utilisateur != "N":
         message_erreur.message_erreur_yes_No()
-        saisie_utilisateur = input(
-            "Souhaitez-vous lancer le tour suivant ? [o/N] : "
-        )
+        saisie_utilisateur = input("Souhaitez-vous lancer le tour suivant ? [o/N] : ")
     return saisie_utilisateur

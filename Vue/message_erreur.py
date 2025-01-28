@@ -4,9 +4,7 @@ from Controleur.constantes import CONSOLE
 
 
 def json_introuvable(DB):
-    CONSOLE.print(
-        f"ATTENTION : le fichier {DB} est introuvable.", style="bold red"
-    )
+    CONSOLE.print(f"ATTENTION : le fichier {DB} est introuvable.", style="bold red")
 
 
 def json_vide(DB):
@@ -60,15 +58,11 @@ def message_erreur_selection_menu(nombre_entrees):
 
 
 def message_erreur_yes_No():
-    CONSOLE.print(
-        "Veuillez entrer 'o' pour oui ou 'N' pour non.", style="bold red"
-    )
+    CONSOLE.print("Veuillez entrer 'o' pour oui ou 'N' pour non.", style="bold red")
 
 
 def message_erreur_Yes_no():
-    CONSOLE.print(
-        "Veuillez entrer 'O' pour oui ou 'n' pour non.", style="bold red"
-    )
+    CONSOLE.print("Veuillez entrer 'O' pour oui ou 'n' pour non.", style="bold red")
 
 
 def recherche_vide():
@@ -93,15 +87,11 @@ def joueur_inexistant(id_joueur):
 
 
 def joueur_existant(id_joueur):
-    CONSOLE.print(
-        f"L'identifiant '{id_joueur}' est déjà enregistré.", style="bold red"
-    )
+    CONSOLE.print(f"L'identifiant '{id_joueur}' est déjà enregistré.", style="bold red")
 
 
 def tournoi_existant(nom_tournoi):
-    CONSOLE.print(
-        f"Le nom '{nom_tournoi}' est déjà attribué.", style="bold red"
-    )
+    CONSOLE.print(f"Le nom '{nom_tournoi}' est déjà attribué.", style="bold red")
 
 
 def tournoi_deja_lance(id_tournoi):

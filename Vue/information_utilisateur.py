@@ -16,11 +16,7 @@ def afficher_infos(categorie, donnees):
             )
         case "tournoi":
             id_joueurs = donnees["id_joueurs"]
-            liste_joueurs = (
-                interactions_controleur_modele.rechercher_liste_joueurs(
-                    DB, id_joueurs
-                )
-            )
+            liste_joueurs = interactions_controleur_modele.rechercher_liste_joueurs(DB, id_joueurs)
             print()
             CONSOLE.print(
                 "[bold yellow]Identifiant : [/bold yellow]",
@@ -87,9 +83,7 @@ def joueur_exempte(nom_joueur, prenom_joueur, id_joueur):
         f"[white]{prenom_joueur} {nom_joueur} [/white]",
         f"[white]({id_joueur}) est exempté pour ce tour.[/white]",
     )
-    CONSOLE.print(
-        "[white]1 point lui est attribué en compensation.[/white]", end="\n\n"
-    )
+    CONSOLE.print("[white]1 point lui est attribué en compensation.[/white]", end="\n\n")
 
 
 def annonce_match(joueur1, joueur2, no_match):
