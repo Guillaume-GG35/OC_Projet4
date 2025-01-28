@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
+from Modele import fonctions_modele
 from Vue import message_erreur, message_succes, information_utilisateur
-from Controleur import menu, verifications, interactions_controleur_modele
+from Controleur import verifications
 
 import shortuuid
 import os
@@ -21,13 +22,14 @@ def generer_id():
 
 
 def concat_id_joueurs(id_joueurs):
-    liste_joueurs = id_joueurs.split()
-    return liste_joueurs
+    liste_joueurs = set(id_joueurs.split())
+    liste_joueurs_finale = [joueur for joueur in liste_joueurs]
+    return liste_joueurs_finale
 
 
 def retour_menu(element):
     if element == "*":
-        menu.run()
+        return True
 
 
 def creer_db_tournoi(db_tournoi):
@@ -49,7 +51,8 @@ def chemin_dossier():
 
 def fichier_donnees_tournoi(id_tournoi, nom_tournoi):
     db_tournoi = chemin_fichier(id_tournoi)
-    os.makedirs(chemin_dossier, exist_ok=True)
+    dossier = chemin_dossier()
+    os.makedirs(dossier, exist_ok=True)
     if not verifications.fichier_donnees_existe(db_tournoi):
         creer_db_tournoi(db_tournoi)
         message_succes.creation_fichier_db_tournoi(db_tournoi)
@@ -64,13 +67,12 @@ def fichier_donnees_tournoi(id_tournoi, nom_tournoi):
                 message_succes.fichier_ecrase(db_tournoi)
             case "n":
                 message_erreur.lancer_tournoi_impossible(nom_tournoi)
-                menu.run()
     return db_tournoi
 
 
 def afficher_tournois(nom_db, categorie, cle, valeur, mode):
     os.makedirs(chemin_dossier(), exist_ok=True)
-    liste_tournois = interactions_controleur_modele.donnees_a_rechercher(
+    liste_tournois = fonctions_modele.recherche_donnees_json(
         nom_db, categorie, cle, valeur
     )
     liste_tournois_finale = [element for element in liste_tournois]
@@ -91,7 +93,7 @@ def afficher_tournois(nom_db, categorie, cle, valeur, mode):
                         i -= 1
 
             i += 1
-        information_utilisateur.liste_simple_tournois(liste_tournois_finale)
+    information_utilisateur.liste_simple_tournois(liste_tournois_finale)
     return liste_tournois_finale
 
 

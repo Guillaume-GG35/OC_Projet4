@@ -86,10 +86,8 @@ def liste_vide_tournois():
 
 def joueur_inexistant(id_joueur):
     CONSOLE.print(
-        f"L'identifiant '{id_joueur}' ",
+        f"L'identifiant '{id_joueur}'",
         "n'est associé à aucun joueur enregistré.",
-        "Merci d'ajouter ce nouveau joueur dans le menu ",
-        "'JOUEURS' avant de l'associer à un tournoi",
         style="bold red",
     )
 

@@ -15,7 +15,7 @@ from Controleur import (
     preparation,
     tournoi,
 )
-from Controleur.constantes import DB
+from Controleur.constantes import DB, STRING
 
 import os
 
@@ -103,7 +103,7 @@ def sous_menu(categorie):
 
     match choix_utilisateur_menu:
         case "0":
-            run()
+            pass
         case "1":
             case1(categorie)
 
@@ -125,36 +125,59 @@ def sous_menu(categorie):
 
 def case1(categorie):
     match categorie:
+
         case "joueur":
+            # Créer un nouveau joueur
+
             infos_joueur = saisie_utilisateur.saisie_nouveau(categorie)
-            infos_joueur["nombre_points"] = 0
-            infos_joueur["nombre_exempte"] = 0
-            id_joueur = infos_joueur["identifiant"]
-            if verifications.id_joueur_existe(DB, id_joueur):
-                message_erreur.joueur_existant(id_joueur)
-                run()
+            if infos_joueur == "Menu":
+                return
             else:
-                fonctions_modele.ajout_donnees_json(
-                    DB, categorie, infos_joueur
-                )
-                message_succes.message_succes()
+                infos_joueur["nombre_points"] = 0
+                infos_joueur["nombre_exempte"] = 0
+                id_joueur = infos_joueur["identifiant"]
+                if verifications.id_joueur_existe(DB, id_joueur):
+                    message_erreur.joueur_existant(id_joueur)
+                else:
+                    fonctions_modele.ajout_donnees_json(
+                        DB, categorie, infos_joueur
+                    )
+                    message_succes.message_succes()
+
         case "tournoi":
-            infos_nouvel_element = saisie_utilisateur.saisie_nouveau(categorie)
-            nom_tournoi = infos_nouvel_element["nom"]
-            id_joueurs = infos_nouvel_element["id_joueurs"]
-            if verifications.nom_tournoi_existe(DB, nom_tournoi):
-                message_erreur.tournoi_existant(nom_tournoi)
-                run()
+            # Préparer un nouveau tournoi
+
+            infos_nouveau_tournoi = saisie_utilisateur.saisie_nouveau(
+                categorie
+            )
+            if infos_nouveau_tournoi == "Menu":
+                return
             else:
-                for element in id_joueurs:
-                    if not verifications.id_joueur_existe(DB, element):
-                        message_erreur.joueur_inexistant(element)
-                        run()
-                fonctions_modele.ajout_donnees_json(
-                    DB, categorie, infos_nouvel_element
-                )
-                message_succes.message_succes()
+                nom_tournoi = infos_nouveau_tournoi["nom"]
+                id_joueurs = infos_nouveau_tournoi["id_joueurs"]
+                if verifications.nom_tournoi_existe(DB, nom_tournoi):
+                    message_erreur.tournoi_existant(nom_tournoi)
+                else:
+                    joueur_existant = True
+                    joueurs_inexistants = []
+                    for element in id_joueurs:
+                        if not verifications.id_joueur_existe(DB, element):
+                            joueurs_inexistants.append(element)
+                            joueur_existant = False
+                    if joueurs_inexistants != []:
+                        for joueur in joueurs_inexistants:
+                            message_erreur.joueur_inexistant(joueur)
+                        message_erreur.erreur_saisie()
+                        return
+                    if joueur_existant:
+                        fonctions_modele.ajout_donnees_json(
+                            DB, categorie, infos_nouveau_tournoi
+                        )
+                        message_succes.message_succes()
+
         case "rapport":
+            # Afficher la liste des joueurs
+
             joueurs = interactions_controleur_modele.rechercher_tous_joueurs(
                 DB
             )
@@ -166,10 +189,15 @@ def case1(categorie):
 
 def case2(categorie):
     match categorie:
+
         case "joueur":
+            # Afficher les infos d'un joueur
+
             chercher_saisie_utilisateur = (
                 saisie_utilisateur.saisie_utilisateur_recherche(categorie)
             )
+            if chercher_saisie_utilisateur == "Menu":
+                return
             donnees = interactions_controleur_modele.donnees_a_rechercher(
                 DB,
                 categorie,
@@ -179,15 +207,24 @@ def case2(categorie):
             interactions_controleur_modele.afficher_donnees(categorie, donnees)
 
         case "tournoi":
+            # Afficher les infos d'un tournoi
+
             chercher_saisie_utilisateur = (
                 saisie_utilisateur.saisie_utilisateur_recherche(categorie)
             )
+            if chercher_saisie_utilisateur == "Menu":
+                return
             donnees = interactions_controleur_modele.donnees_a_rechercher(
                 DB, categorie, "nom", chercher_saisie_utilisateur
             )
-            interactions_controleur_modele.afficher_donnees(categorie, donnees)
+            if donnees is not None or donnees != []:
+                interactions_controleur_modele.afficher_donnees(
+                    categorie, donnees
+                )
 
         case "rapport":
+            # Afficher la liste des tournois
+
             tournois = interactions_controleur_modele.rechercher_tournois(DB)
             information_utilisateur.liste_elements("tournois")
             for element in tournois:
@@ -196,17 +233,24 @@ def case2(categorie):
 
 def case3(categorie):
     match categorie:
-        # ajouter joueur à tournoi préparé
+
         case "tournoi":
-            fonctions_controleur.afficher_tournois(
+            # Ajouter joueur à tournoi préparé
+
+            liste_tournois = fonctions_controleur.afficher_tournois(
                 DB, categorie, "date_debut", "", "pret"
             )
-            preparation.ajouter_joueur_dans_tournoi(categorie)
+            if liste_tournois != []:
+                preparation.ajouter_joueur_dans_tournoi(categorie)
 
         case "rapport":
+            # Afficher le nom et la date d'un tournoi
+
             chercher_saisie_utilisateur = (
                 saisie_utilisateur.saisie_utilisateur_recherche("tournoi")
             )
+            if chercher_saisie_utilisateur == "Menu":
+                return
             donnees = interactions_controleur_modele.donnees_a_rechercher(
                 DB, "tournoi", "nom", chercher_saisie_utilisateur
             )[0]
@@ -219,17 +263,24 @@ def case3(categorie):
 
 def case4(categorie):
     match categorie:
-        # démarrer tournoi préparé
+
         case "tournoi":
-            fonctions_controleur.afficher_tournois(
+            # Démarrer tournoi préparé
+
+            liste_tournois = fonctions_controleur.afficher_tournois(
                 DB, categorie, "date_debut", "", "pret"
             )
-            tournoi.demarrer_tournoi_prepare(categorie)
+            if liste_tournois != [] and liste_tournois is not None:
+                tournoi.demarrer_tournoi_prepare(categorie)
 
         case "rapport":
+            # Afficher la liste des joueurs d'un tournoi
+
             chercher_saisie_utilisateur = (
                 saisie_utilisateur.saisie_utilisateur_recherche("tournoi")
             )
+            if chercher_saisie_utilisateur == "Menu":
+                return
             donnees = interactions_controleur_modele.donnees_a_rechercher(
                 DB, "tournoi", "nom", chercher_saisie_utilisateur
             )[0]
@@ -250,20 +301,101 @@ def case4(categorie):
 
 def case5(categorie):
     match categorie:
-        # Afficher les tournois en cours
+
         case "tournoi":
+            # Afficher les tournois en cours
+
             fonctions_controleur.afficher_tournois(
                 DB, categorie, "date_fin", "", "en_cours"
             )
-            run()
+
         case "rapport":
-            fonctions_controleur.afficher_tournois(
-                DB, "tournoi", "date_fin", "", "en_cours"
-            )
+            # Afficher la liste des tours et des matchs d'un tournoi
+
+            afficher_tournois_et_tours()
 
 
 def case6(categorie):
     match categorie:
-        # Reprendre un tournoi en cours
+
         case "tournoi":
+            # Reprendre un tournoi en cours
+
             tournoi.reprendre_tournoi(categorie)
+
+
+def afficher_tournois_et_tours():
+    information_utilisateur.texte_liste_disponible("tournois")
+
+    resultat = fonctions_modele.recherche_table(DB, "tournoi")
+    noms_tournois = []
+    tournoi_termine = []
+    for element in resultat:
+        noms_tournois.append(element["nom"])
+        if element["date_fin"] != "":
+            tournoi_termine.append(element["identifiant"])
+            information_utilisateur.afficher_element("tournoi", element["nom"])
+    if tournoi_termine == []:
+        message_erreur.liste_vide_tournois()
+        return
+    saisie = saisie_utilisateur.saisie_utilisateur("nom du tournoi", STRING)
+    if saisie == "Menu":
+        return
+    while saisie not in noms_tournois:
+        message_erreur.recherche_vide()
+        saisie = saisie_utilisateur.saisie_utilisateur(
+            "nom du tournoi", STRING
+        )
+        if saisie == "Menu":
+            return
+    donnees = interactions_controleur_modele.donnees_a_rechercher(
+        DB, "tournoi", "nom", saisie
+    )[0]
+    id_tournoi = donnees["identifiant"]
+    chemin = fonctions_controleur.chemin_fichier(id_tournoi)
+    fichier_existe = verifications.fichier_donnees_existe(chemin)
+    if fichier_existe:
+        tours = fonctions_modele.recherche_table(chemin, "tours")
+        i = 1
+        for element in tours:
+            tour = []
+            matchs = fonctions_modele.recherche_table(
+                chemin, "matchs_termines_round_" + str(i)
+            )
+            nom = element["nom"]
+            date_debut = element["date_debut"]
+            date_fin = element["date_fin"]
+            tour.append(nom)
+            tour.append(date_debut)
+            tour.append(date_fin)
+            information_utilisateur.afficher_element("rapport_tournoi", tour)
+            for element in matchs:
+                match = []
+                no_match = element["no_match"]
+                joueur1 = element["joueur1"]
+                joueur2 = element["joueur2"]
+                gagnant = element["gagnant"]
+                donnees_j1 = fonctions_modele.recherche_donnees_json(
+                    chemin, "joueur", "identifiant", joueur1
+                )[0]
+                donnees_j2 = fonctions_modele.recherche_donnees_json(
+                    chemin, "joueur", "identifiant", joueur2
+                )[0]
+                donnees_gagnant = fonctions_modele.recherche_donnees_json(
+                    chemin, "joueur", "identifiant", gagnant
+                )
+                if donnees_gagnant != []:
+                    donnees_gagnant = donnees_gagnant[0]
+                match.append(no_match)
+                match.append(f"{donnees_j1["prenom"]} {donnees_j1["nom"]}")
+                match.append(f"{donnees_j2["prenom"]} {donnees_j2["nom"]}")
+                if donnees_gagnant == []:
+                    match.append("match nul")
+                else:
+                    match.append(
+                        f"{donnees_gagnant["prenom"]} {donnees_gagnant["nom"]}"
+                    )
+                information_utilisateur.afficher_element("matchs", match)
+            i += 1
+    else:
+        message_erreur.erreur_saisie()

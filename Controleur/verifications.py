@@ -57,6 +57,8 @@ def valider(saisie_utilisateur, type_donnee):
                 or any(element.isalpha() for element in saisie_utilisateur)
                 and any(element.isdigit() for element in saisie_utilisateur)
             )
+        case "":
+            return True
 
 
 def valider_nombre_tours(nombre_tours):

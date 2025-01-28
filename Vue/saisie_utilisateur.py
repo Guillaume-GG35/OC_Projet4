@@ -5,7 +5,7 @@ from Controleur import (
     verifications,
     interactions_controleur_modele,
 )
-from Vue import message_erreur
+from Vue import message_erreur, information_utilisateur
 
 from Controleur.constantes import (
     CONSOLE,
@@ -36,69 +36,115 @@ def saisie_nouveau(categorie):
 
     match categorie:
         case "joueur":
-            identifiant = saisie_utilisateur("identifiant", STR_OR_NUM)
-            nom = saisie_utilisateur("nom", STRING)
-            prenom = saisie_utilisateur("prénom", STRING)
+            nom_champs = [
+                "identifiant",
+                "nom",
+                "prénom",
+                "date de naissance (jj/mm/aaaa)",
+            ]
+            type_champs = [STR_OR_NUM, STRING, STRING, ""]
+            i = 0
+            infos_joueur = {}
+            for champ in nom_champs:
 
-            date_correcte = ""
-            while not date_correcte:
-                date_naissance = input(
-                    "Entrez la date de naissance du",
-                    " nouveau joueur (JJ/MM/AAAA) : ",
-                )
-                fonctions_controleur.retour_menu(date_naissance)
-                date_correcte = verifications.verifier_date(date_naissance)
-                if not date_correcte:
-                    CONSOLE.print(
-                        "SAISIE INCORRECTE : Veuillez entrer",
-                        " une date au format JJ/MM/AAAA",
-                        style="bold red",
-                    )
+                if champ == "nom":
+                    saisie = saisie_utilisateur(champ, type_champs[i])
+                    saisie = saisie.upper()
+                    infos_joueur[champ] = saisie
 
-            infos_joueur = {
-                "nom": nom.upper(),
-                "prenom": prenom,
-                "date_naissance": date_naissance,
-                "identifiant": identifiant,
-            }
+                elif champ == "prénom":
+                    saisie = saisie_utilisateur(champ, type_champs[i])
+                    champ = "prenom"
+
+                elif champ == "date de naissance (jj/mm/aaaa)":
+                    saisie = saisie_utilisateur(champ, type_champs[i])
+                    date_correcte = verifications.verifier_date(saisie)
+                    while not date_correcte:
+                        CONSOLE.print(
+                            "SAISIE INCORRECTE : Veuillez entrer une date ",
+                            "au format JJ/MM/AAAA",
+                            style="bold red",
+                        )
+                        saisie = saisie_utilisateur(champ, type_champs[i])
+                        date_correcte = verifications.verifier_date(saisie)
+                    champ = "date_naissance"
+                    infos_joueur[champ] = saisie
+
+                else:
+                    saisie = saisie_utilisateur(champ, type_champs[i])
+
+                if saisie == "*":
+                    return "Menu"
+                else:
+                    infos_joueur[champ] = saisie
+                i += 1
             return infos_joueur
 
         case "tournoi":
 
-            identifiant = fonctions_controleur.generer_id()
-            nom = saisie_utilisateur("nom", STRING)
-            lieu = saisie_utilisateur("lieu", STRING)
-            nombre_tours = saisie_utilisateur(
-                "nombre de tours (valeur par défaut = 4)", NUM_OR_EMPTY
-            )
-            nombre_tours = verifications.valider_nombre_tours(nombre_tours)
-            id_joueurs = saisie_utilisateur(
-                "identifiants des joueurs", STR_OR_NUM
-            )
-            liste_joueurs = fonctions_controleur.concat_id_joueurs(id_joueurs)
-            description = saisie_utilisateur("description", STRING)
+            nom_champs = [
+                "identifiant",
+                "nom",
+                "lieu",
+                "nombre de tours (valeur par défaut = 4)",
+                "identifiants des joueurs",
+                "description",
+            ]
+            type_champs = [
+                "",
+                STRING,
+                STRING,
+                NUM_OR_EMPTY,
+                STR_OR_NUM,
+                STRING,
+            ]
 
-            infos_tournoi = {
-                "identifiant": identifiant,
-                "nom": nom,
-                "lieu": lieu,
-                "date_debut": "",
-                "date_fin": "",
-                "nombre_tours": nombre_tours,
-                "id_joueurs": liste_joueurs,
-                "description": description,
-            }
+            i = 0
+            infos_tournoi = {}
+            for champ in nom_champs:
+
+                if champ == "identifiant":
+                    saisie = fonctions_controleur.generer_id()
+                    infos_tournoi[champ] = saisie
+                    i += 1
+                    continue
+
+                elif champ == "nombre de tours (valeur par défaut = 4)":
+                    saisie = saisie_utilisateur(champ, type_champs[i])
+                    cle = "nombre_tours"
+                    nombre_tours = verifications.valider_nombre_tours(saisie)
+                    infos_tournoi[cle] = nombre_tours
+
+                elif champ == "identifiants des joueurs":
+                    saisie = saisie_utilisateur(champ, type_champs[i])
+                    liste_joueurs = fonctions_controleur.concat_id_joueurs(
+                        saisie
+                    )
+                    liste_joueurs.sort()
+                    cle = "id_joueurs"
+                    infos_tournoi[cle] = liste_joueurs
+
+                else:
+                    saisie = saisie_utilisateur(champ, type_champs[i])
+                    infos_tournoi[champ] = saisie
+
+                if saisie == "*":
+                    return "Menu"
+                i += 1
+
+            infos_tournoi["date_debut"] = ""
+            infos_tournoi["date_fin"] = ""
             return infos_tournoi
 
 
 def saisie_utilisateur(type_nom, type_donnee):
     while True:
-        saisie_utilisateur = input(
-            "(* = Menu principal) Entrez ",
-            f"l'information suivante - {str.upper(type_nom)} : ",
-        )
-        fonctions_controleur.retour_menu(saisie_utilisateur)
-        if verifications.valider(saisie_utilisateur, type_donnee):
+        print()
+        message = "(* = Menu principal) Entrez l'information suivante"
+        saisie_utilisateur = input(f"{message} - {str.upper(type_nom)} : ")
+        if saisie_utilisateur == "*":
+            return "Menu"
+        elif verifications.valider(saisie_utilisateur, type_donnee):
             return saisie_utilisateur
         else:
             message_erreur.erreur(type_donnee)
@@ -108,12 +154,13 @@ def saisie_utilisateur_recherche(categorie):
     match categorie:
         case "joueur":
             id_joueur = saisie_utilisateur("id du joueur", STR_OR_NUM)
-            return id_joueur
+            if id_joueur == "*":
+                return "Menu"
+            else:
+                return id_joueur
         case "tournoi":
             print()
-            CONSOLE.print(
-                "[bold cyan]Liste des tournois disponibles :[/bold cyan]"
-            )
+            information_utilisateur.texte_liste_disponible("tournois")
             liste_tournois = (
                 interactions_controleur_modele.rechercher_tournois(DB)
             )
@@ -121,19 +168,28 @@ def saisie_utilisateur_recherche(categorie):
                 print("- " + element)
             print()
             nom_tournoi = saisie_utilisateur("nom du tournoi", STRING)
-            return nom_tournoi
+            if nom_tournoi == "*":
+                return "Menu"
+            else:
+                return nom_tournoi
 
 
 def lancer_tournoi():
     nom_tournoi = saisie_utilisateur("nom du tournoi", STRING)
-    return nom_tournoi
+    if nom_tournoi == "*":
+        return "Menu"
+    else:
+        return nom_tournoi
 
 
 def saisie_id_gagnant():
     gagnant = saisie_utilisateur(
         "id du gagnant (vide = match nul)", STRNUM_OR_EMPTY
     )
-    return gagnant
+    if gagnant == "*":
+        return "Menu"
+    else:
+        return gagnant
 
 
 def tour_suivant():

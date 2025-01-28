@@ -11,7 +11,6 @@ from Controleur import (
     interactions_controleur_modele,
     verifications,
     fonctions_controleur,
-    menu,
 )
 
 from Controleur.constantes import DB, STRING, STR_OR_NUM
@@ -36,7 +35,7 @@ def ajouter_joueur_dans_tournoi(categorie):
         for element in donnees["id_joueurs"]:
             if element == id_nouveau_joueur:
                 message_erreur.joueur_existant(id_nouveau_joueur)
-                menu.run()
+                return
         donnees["id_joueurs"].append(id_nouveau_joueur)
         fonctions_modele.actualisation_element_db(
             DB,
@@ -49,12 +48,12 @@ def ajouter_joueur_dans_tournoi(categorie):
         message_succes.message_succes()
     else:
         message_erreur.tournoi_deja_lance(donnees["identifiant"])
-        menu.run()
 
     joueur_existant = verifications.id_joueur_existe(DB, id_nouveau_joueur)
     if not joueur_existant:
         message_erreur.joueur_inexistant(id_nouveau_joueur)
-        menu.run()
+        return
+        # menu.run()
 
 
 def generer_appariements(

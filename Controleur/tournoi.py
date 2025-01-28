@@ -11,7 +11,6 @@ from Controleur import (
     interactions_controleur_modele,
     fonctions_controleur,
     preparation,
-    menu,
 )
 
 from Controleur.constantes import DB
@@ -19,28 +18,31 @@ from Controleur.constantes import DB
 
 def demarrer_tournoi_prepare(categorie):
     nom_tournoi = saisie_utilisateur.lancer_tournoi()
+    if nom_tournoi == "Menu":
+        return
     liste_donnees_tournoi = (
         interactions_controleur_modele.donnees_a_rechercher(
             DB, categorie, "nom", nom_tournoi
         )
     )
-    donnees_tournoi = liste_donnees_tournoi[0]
-    tournoi = classes.Tournoi(**donnees_tournoi)
-    fonctions_modele.actualisation_element_db(
-        DB,
-        "tournoi",
-        "date_debut",
-        tournoi.date_debut,
-        "identifiant",
-        tournoi.identifiant,
-    )
-    db_tournoi = fonctions_controleur.fichier_donnees_tournoi(
-        tournoi.identifiant, tournoi.nom
-    )
-    interactions_controleur_modele.injecter_joueurs_db_tournoi(
-        db_tournoi, tournoi.liste_joueurs
-    )
-    lancer_tours(tournoi, db_tournoi, "", "tournoi", "new", "", "")
+    if liste_donnees_tournoi != [] and liste_donnees_tournoi is not None:
+        donnees_tournoi = liste_donnees_tournoi[0]
+        tournoi = classes.Tournoi(**donnees_tournoi)
+        fonctions_modele.actualisation_element_db(
+            DB,
+            "tournoi",
+            "date_debut",
+            tournoi.date_debut,
+            "identifiant",
+            tournoi.identifiant,
+        )
+        db_tournoi = fonctions_controleur.fichier_donnees_tournoi(
+            tournoi.identifiant, tournoi.nom
+        )
+        interactions_controleur_modele.injecter_joueurs_db_tournoi(
+            db_tournoi, tournoi.liste_joueurs
+        )
+        lancer_tours(tournoi, db_tournoi, "", "tournoi", "new", "", "")
 
 
 def lancer_tours(
@@ -169,6 +171,8 @@ def lancer_tours(
             )
             information_utilisateur.annonce_match(joueur1, joueur2, no_match)
             id_gagnant = saisie_utilisateur.saisie_id_gagnant()
+            if id_gagnant == "Menu":
+                return
             while (
                 id_gagnant != joueur1.identifiant
                 and id_gagnant != joueur2.identifiant
@@ -176,6 +180,8 @@ def lancer_tours(
             ):
                 message_erreur.erreur_saisie()
                 id_gagnant = saisie_utilisateur.saisie_id_gagnant()
+                if id_gagnant == "Menu":
+                    return
             match_x.fin()
             match id_gagnant:
                 case joueur1.identifiant:
@@ -215,7 +221,7 @@ def lancer_tours(
         if tournoi.tour_actuel < int(tournoi.nombre_tours):
             tour_suivant_accord_utilisateur = saisie_utilisateur.tour_suivant()
             if tour_suivant_accord_utilisateur == "N":
-                menu.run()
+                break
 
     tournoi.fin()
     fonctions_modele.actualisation_element_db(
@@ -232,7 +238,6 @@ def lancer_tours(
     information_utilisateur.tournoi_termine(tournoi.identifiant, tournoi.nom)
     classement = classement_tournoi(db_tournoi, tournoi.liste_joueurs)
     information_utilisateur.classement_tournoi(classement)
-    menu.run()
 
 
 def reprendre_tournoi(categorie):
@@ -240,83 +245,87 @@ def reprendre_tournoi(categorie):
         DB, categorie, "date_fin", "", "en_cours"
     )
     if liste_tournois_en_cours == []:
-        menu.run()
+        pass
+    else:
+        noms_tournois_en_cours = [
+            tournoi["nom"] for tournoi in liste_tournois_en_cours
+        ]
 
-    noms_tournois_en_cours = [
-        tournoi["nom"] for tournoi in liste_tournois_en_cours
-    ]
-
-    nom_tournoi = saisie_utilisateur.lancer_tournoi()
-    while nom_tournoi not in noms_tournois_en_cours:
-        message_erreur.erreur_saisie()
         nom_tournoi = saisie_utilisateur.lancer_tournoi()
+        if nom_tournoi == "Menu":
+            return
+        while nom_tournoi not in noms_tournois_en_cours:
+            message_erreur.erreur_saisie()
+            nom_tournoi = saisie_utilisateur.lancer_tournoi()
+            if nom_tournoi == "Menu":
+                return
 
-    liste_donnees_tournoi = (
-        interactions_controleur_modele.donnees_a_rechercher(
-            DB, categorie, "nom", nom_tournoi
-        )
-    )
-    donnees_tournoi = liste_donnees_tournoi[0]
-    tournoi = classes.Tournoi(**donnees_tournoi)
-
-    db_tournoi = fonctions_controleur.chemin_fichier(tournoi.identifiant)
-    nombre_matchs_par_tour = tournoi.calculer_nombre_match_par_tour()
-
-    for i in range(1, int(tournoi.nombre_tours) + 1):
-        donnees = fonctions_modele.recherche_donnees_json(
-            db_tournoi, "tours", "nom", "Round " + str(i)
-        )
-        if donnees == []:
-            tournoi.tour_actuel = i
-            break
-    matchs_possibles = fonctions_modele.recherche_donnees_json(
-        db_tournoi, "liste_matchs_possibles", "nom", "matchs_possibles"
-    )[0]
-    data_matchs_possibles = matchs_possibles["matchs_jouables"]
-    combinaisons_matchs_possibles = [
-        tuple(element) for element in data_matchs_possibles
-    ]
-
-    donnees_matchs = []
-    for j in range(1, int(nombre_matchs_par_tour) + 1):
-        try:
-            donnees_matchs.append(
-                fonctions_modele.recherche_donnees_json(
-                    db_tournoi,
-                    "liste_matchs_round_" + str(tournoi.tour_actuel),
-                    "nom",
-                    "match " + str(j),
-                )[0]["donnees"]
+        liste_donnees_tournoi = (
+            interactions_controleur_modele.donnees_a_rechercher(
+                DB, categorie, "nom", nom_tournoi
             )
-        except IndexError:
-            pass
-
-    for element in donnees_matchs:
-        element[0] = tuple(element[0])
-        element[1] = tuple(element[1])
-
-    for i in range(1, int(nombre_matchs_par_tour) + 1):
-        donnees = fonctions_modele.recherche_donnees_json(
-            db_tournoi,
-            "matchs_termines_round_" + str(tournoi.tour_actuel),
-            "no_match",
-            i,
         )
-        if donnees == []:
-            no_match = i
-            break
-        else:
-            donnees_matchs.pop(i - 1)
+        donnees_tournoi = liste_donnees_tournoi[0]
+        tournoi = classes.Tournoi(**donnees_tournoi)
 
-    lancer_tours(
-        tournoi,
-        db_tournoi,
-        combinaisons_matchs_possibles,
-        categorie,
-        "load",
-        donnees_matchs,
-        no_match,
-    )
+        db_tournoi = fonctions_controleur.chemin_fichier(tournoi.identifiant)
+        nombre_matchs_par_tour = tournoi.calculer_nombre_match_par_tour()
+
+        for i in range(1, int(tournoi.nombre_tours) + 1):
+            donnees = fonctions_modele.recherche_donnees_json(
+                db_tournoi, "tours", "nom", "Round " + str(i)
+            )
+            if donnees == []:
+                tournoi.tour_actuel = i
+                break
+        matchs_possibles = fonctions_modele.recherche_donnees_json(
+            db_tournoi, "liste_matchs_possibles", "nom", "matchs_possibles"
+        )[0]
+        data_matchs_possibles = matchs_possibles["matchs_jouables"]
+        combinaisons_matchs_possibles = [
+            tuple(element) for element in data_matchs_possibles
+        ]
+
+        donnees_matchs = []
+        for j in range(1, int(nombre_matchs_par_tour) + 1):
+            try:
+                donnees_matchs.append(
+                    fonctions_modele.recherche_donnees_json(
+                        db_tournoi,
+                        "liste_matchs_round_" + str(tournoi.tour_actuel),
+                        "nom",
+                        "match " + str(j),
+                    )[0]["donnees"]
+                )
+            except IndexError:
+                pass
+
+        for element in donnees_matchs:
+            element[0] = tuple(element[0])
+            element[1] = tuple(element[1])
+
+        for i in range(1, int(nombre_matchs_par_tour) + 1):
+            donnees = fonctions_modele.recherche_donnees_json(
+                db_tournoi,
+                "matchs_termines_round_" + str(tournoi.tour_actuel),
+                "no_match",
+                i,
+            )
+            if donnees == []:
+                no_match = i
+                break
+            else:
+                donnees_matchs.pop(i - 1)
+
+        lancer_tours(
+            tournoi,
+            db_tournoi,
+            combinaisons_matchs_possibles,
+            categorie,
+            "load",
+            donnees_matchs,
+            no_match,
+        )
 
 
 def classement_tournoi(db_tournoi, liste_joueurs):

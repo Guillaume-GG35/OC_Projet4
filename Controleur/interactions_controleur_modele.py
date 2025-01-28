@@ -2,7 +2,6 @@
 
 from Modele import fonctions_modele
 from Vue import message_erreur, information_utilisateur
-from Controleur import menu
 from Controleur.constantes import DB
 
 
@@ -18,10 +17,8 @@ def donnees_a_rechercher(
         and donnees == []
     ):
         information_utilisateur.liste_simple_tournois(donnees)
-        menu.run()
     elif donnees == [] or donnees == "" or donnees is None:
         message_erreur.recherche_vide()
-        menu.run()
     else:
         return donnees
 
