@@ -7,7 +7,7 @@ Ce programme permet la gestion de tournois d'échecs.<br>
 
 ## Prérequis
 
-Pour installer et exécuter ce programme, vous aurez besoin d'une connexion internet.<br>
+Pour installer ce programme, vous aurez besoin d'une connexion internet. Le programme est ensuite exécuté en local et ne nécessite pas de connexion internet pour fonctionner.<br>
 <br>
 Python doit être installé sur votre ordinateur (version 3.12.7 ou supérieur).<br>
 <br>
