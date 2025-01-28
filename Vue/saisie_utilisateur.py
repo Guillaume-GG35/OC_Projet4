@@ -47,10 +47,19 @@ def saisie_nouveau(categorie):
             infos_joueur = {}
             for champ in nom_champs:
 
-                if champ == "nom":
+                if champ == "identifiant":
+                    saisie = saisie_utilisateur(champ, type_champs[i])
+                    joueur_existe = verifications.id_joueur_existe(DB, saisie)
+                    while joueur_existe:
+                        message_erreur.joueur_existant(saisie)
+                        saisie = saisie_utilisateur(champ, type_champs[i])
+                        joueur_existe = verifications.id_joueur_existe(DB, saisie)
+                    entrer_donnees(infos_joueur, champ, saisie)
+
+                elif champ == "nom":
                     saisie = saisie_utilisateur(champ, type_champs[i])
                     saisie = saisie.upper()
-                    infos_joueur[champ] = saisie
+                    entrer_donnees(infos_joueur, champ, saisie)
 
                 elif champ == "prénom":
                     saisie = saisie_utilisateur(champ, type_champs[i])
@@ -60,23 +69,19 @@ def saisie_nouveau(categorie):
                     saisie = saisie_utilisateur(champ, type_champs[i])
                     date_correcte = verifications.verifier_date(saisie)
                     while not date_correcte:
-                        CONSOLE.print(
-                            "SAISIE INCORRECTE : Veuillez entrer une date ",
-                            "au format JJ/MM/AAAA",
-                            style="bold red",
-                        )
+                        message_erreur.message_erreur_date()
                         saisie = saisie_utilisateur(champ, type_champs[i])
                         date_correcte = verifications.verifier_date(saisie)
                     champ = "date_naissance"
-                    infos_joueur[champ] = saisie
+                    entrer_donnees(infos_joueur, champ, saisie)
 
                 else:
                     saisie = saisie_utilisateur(champ, type_champs[i])
 
-                if saisie == "*":
+                if saisie == "Menu":
                     return "Menu"
                 else:
-                    infos_joueur[champ] = saisie
+                    entrer_donnees(infos_joueur, champ, saisie)
                 i += 1
             return infos_joueur
 
@@ -105,7 +110,7 @@ def saisie_nouveau(categorie):
 
                 if champ == "identifiant":
                     saisie = fonctions_controleur.generer_id()
-                    infos_tournoi[champ] = saisie
+                    entrer_donnees(infos_tournoi, champ, saisie)
                     i += 1
                     continue
 
@@ -113,26 +118,51 @@ def saisie_nouveau(categorie):
                     saisie = saisie_utilisateur(champ, type_champs[i])
                     cle = "nombre_tours"
                     nombre_tours = verifications.valider_nombre_tours(saisie)
-                    infos_tournoi[cle] = nombre_tours
+                    entrer_donnees(infos_tournoi, cle, nombre_tours)
 
                 elif champ == "identifiants des joueurs":
                     saisie = saisie_utilisateur(champ, type_champs[i])
+                    if saisie == "Menu":
+                        return "Menu"
                     liste_joueurs = fonctions_controleur.concat_id_joueurs(saisie)
                     liste_joueurs.sort()
+
+                    joueur_existant = False
+                    while not joueur_existant:
+                        joueurs_inexistants = []
+                        for joueur in liste_joueurs:
+                            if not verifications.id_joueur_existe(DB, joueur):
+                                joueurs_inexistants.append(joueur)
+                                joueur_existant = False
+                        if joueurs_inexistants != []:
+                            for joueur in joueurs_inexistants:
+                                message_erreur.joueur_inexistant(joueur)
+                        else:
+                            joueur_existant = True
+                        saisie = saisie_utilisateur(champ, type_champs[i])
+                        liste_joueurs = fonctions_controleur.concat_id_joueurs(saisie)
+                        liste_joueurs.sort()
+                        if saisie == "Menu":
+                            return "Menu"
+
                     cle = "id_joueurs"
-                    infos_tournoi[cle] = liste_joueurs
+                    entrer_donnees(infos_tournoi, cle, liste_joueurs)
 
                 else:
                     saisie = saisie_utilisateur(champ, type_champs[i])
-                    infos_tournoi[champ] = saisie
+                    entrer_donnees(infos_tournoi, champ, saisie)
 
-                if saisie == "*":
+                if saisie == "Menu":
                     return "Menu"
                 i += 1
 
-            infos_tournoi["date_debut"] = ""
-            infos_tournoi["date_fin"] = ""
+            entrer_donnees(infos_tournoi, "date_debut", "")
+            entrer_donnees(infos_tournoi, "date_fin", "")
             return infos_tournoi
+
+
+def entrer_donnees(dictionnaire, cle, valeur):
+    dictionnaire[cle] = valeur
 
 
 def saisie_utilisateur(type_nom, type_donnee):

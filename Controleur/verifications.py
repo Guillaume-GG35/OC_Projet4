@@ -59,11 +59,14 @@ def valider_nombre_tours(nombre_tours):
 
 
 def verifier_date(date_str):
-    try:
-        datetime.strptime(date_str, "%d/%m/%Y")
+    if date_str == "Menu":
         return True
-    except ValueError:
-        return False
+    else:
+        try:
+            datetime.strptime(date_str, "%d/%m/%Y")
+            return True
+        except ValueError:
+            return False
 
 
 def id_joueur_existe(nom_db, id_joueur):

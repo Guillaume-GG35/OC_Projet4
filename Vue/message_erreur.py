@@ -28,21 +28,21 @@ def erreur(type_donnee):
         case "NumOrEmpty":
             CONSOLE.print(
                 "SAISIE INCORRECTE : Veuillez entrer uniquement des chiffres",
-                " ou laisser vide pour valider la valeur par défaut.",
+                "ou laisser vide pour valider la valeur par défaut.",
                 end="\n\n",
                 style="bold red",
             )
         case "StrOrNum":
             CONSOLE.print(
                 "SAISIE INCORRECTE : Veuillez entrer des",
-                " chiffres et des lettres.",
+                "chiffres et des lettres.",
                 end="\n\n",
                 style="bold red",
             )
         case "StrNumOrEmpty":
             CONSOLE.print(
                 "SAISIE INCORRECTE : Veuillez entrer des",
-                " chiffres et des lettres ou laisser vide.",
+                "chiffres et des lettres ou laisser vide.",
                 end="\n\n",
                 style="bold red",
             )
@@ -51,10 +51,14 @@ def erreur(type_donnee):
 def message_erreur_selection_menu(nombre_entrees):
     CONSOLE.print(
         "SAISIE INCORRECTE : Vous devez entrer un",
-        f" chiffre compris entre 0 et {nombre_entrees}",
+        f"chiffre compris entre 0 et {nombre_entrees}",
         end="\n\n",
         style="bold red",
     )
+
+
+def message_erreur_date():
+    CONSOLE.print("SAISIE INCORRECTE : Veuillez entrer une date au format JJ/MM/AAAA", style="bold red")
 
 
 def message_erreur_yes_No():

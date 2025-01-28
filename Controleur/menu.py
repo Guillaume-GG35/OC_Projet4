@@ -131,12 +131,8 @@ def case1(categorie):
             else:
                 infos_joueur["nombre_points"] = 0
                 infos_joueur["nombre_exempte"] = 0
-                id_joueur = infos_joueur["identifiant"]
-                if verifications.id_joueur_existe(DB, id_joueur):
-                    message_erreur.joueur_existant(id_joueur)
-                else:
-                    fonctions_modele.ajout_donnees_json(DB, categorie, infos_joueur)
-                    message_succes.message_succes()
+                fonctions_modele.ajout_donnees_json(DB, categorie, infos_joueur)
+                message_succes.message_succes()
 
         case "tournoi":
             # Préparer un nouveau tournoi
@@ -146,24 +142,11 @@ def case1(categorie):
                 return
             else:
                 nom_tournoi = infos_nouveau_tournoi["nom"]
-                id_joueurs = infos_nouveau_tournoi["id_joueurs"]
                 if verifications.nom_tournoi_existe(DB, nom_tournoi):
                     message_erreur.tournoi_existant(nom_tournoi)
                 else:
-                    joueur_existant = True
-                    joueurs_inexistants = []
-                    for element in id_joueurs:
-                        if not verifications.id_joueur_existe(DB, element):
-                            joueurs_inexistants.append(element)
-                            joueur_existant = False
-                    if joueurs_inexistants != []:
-                        for joueur in joueurs_inexistants:
-                            message_erreur.joueur_inexistant(joueur)
-                        message_erreur.erreur_saisie()
-                        return
-                    if joueur_existant:
-                        fonctions_modele.ajout_donnees_json(DB, categorie, infos_nouveau_tournoi)
-                        message_succes.message_succes()
+                    fonctions_modele.ajout_donnees_json(DB, categorie, infos_nouveau_tournoi)
+                    message_succes.message_succes()
 
         case "rapport":
             # Afficher la liste des joueurs
