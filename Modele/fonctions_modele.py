@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 from tinydb import TinyDB, where
-from Controleur.constantes import DB
+from Controleur.constantes import CHEMIN_DB, DB
+import os
 
+os.makedirs(CHEMIN_DB, exist_ok=True)
 DB = TinyDB(DB)
 
 

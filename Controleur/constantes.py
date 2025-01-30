@@ -4,6 +4,7 @@ from rich.console import Console
 import os
 
 CONSOLE = Console()
+CHEMIN_DB = os.path.join("data", "tournaments")
 DB = os.path.join("data", "tournaments", "data.json")
 RAPPORTS = os.path.join("data", "reports", "")
 STRING = "str"
