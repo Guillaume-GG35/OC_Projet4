@@ -17,13 +17,19 @@ from Controleur.constantes import DB
 
 
 def demarrer_tournoi_prepare(categorie):
+    # Récupération de la saisie utilisateur (nom du tournoi à lancer)
     nom_tournoi = saisie_utilisateur.lancer_tournoi()
     if nom_tournoi == "Menu":
         return
+
+    # Recherche des données du tournoi demandées par l'utilisateur
+    # (une liste est retournée par la fonction donnees_a_rechercher)
     liste_donnees_tournoi = interactions_controleur_modele.donnees_a_rechercher(DB, categorie, "nom", nom_tournoi)
     if not liste_donnees_tournoi:
         return
+
     elif liste_donnees_tournoi != [] and liste_donnees_tournoi is not None:
+        # Création d'un objet Tournoi et actualisation du fichier data.json
         donnees_tournoi = liste_donnees_tournoi[0]
         tournoi = classes.Tournoi(**donnees_tournoi)
         fonctions_modele.actualisation_element_db(
@@ -34,6 +40,9 @@ def demarrer_tournoi_prepare(categorie):
             "identifiant",
             tournoi.identifiant,
         )
+        # - Création de la base de données spécifique au tournoi
+        # - Injection des participants dans cette nouvelle base de données
+        # - Lancement du tournoi
         db_tournoi = fonctions_controleur.fichier_donnees_tournoi(tournoi.identifiant, tournoi.nom)
         interactions_controleur_modele.injecter_joueurs_db_tournoi(db_tournoi, tournoi.liste_joueurs)
         lancer_tours(tournoi, db_tournoi, "", "tournoi", "new", "", "")
@@ -48,18 +57,27 @@ def lancer_tours(
     liste_matchs,
     no_match,
 ):
+    # Dans le cas d'une "Reprise d'un tournoi en cours", le premier tour à jouer
+    # ne sera pas nécessairement le premier tour du tournoi
     premier_tour = tournoi.tour_actuel
 
+    # Boucle sur le nombre de tours du tournoi
+    # Pour chaque tour du tournoi, création d'un objet tour et affichage du numéro de tour
     for tournoi.tour_actuel in range(premier_tour, int(tournoi.nombre_tours) + 1):
         tour = classes.Tour(tournoi.tour_actuel, tournoi.nom)
         information_utilisateur.afficher_nom_round(tour.nom)
 
+        # Au premier tour, mélange des joueurs
+        # et vérification de l'existence dans la base de données du tournoi
+        # de la liste des matchs possibles
         if tournoi.tour_actuel == 1:
             liste_id_triee = preparation.ordre_joueurs_aleatoire(tournoi.liste_joueurs)
             matchs_possibles = fonctions_modele.recherche_donnees_json(
                 db_tournoi, "liste_matchs_possibles", "nom", "matchs_possibles"
             )
 
+            # Si la base de données du tournoi ne contient pas de liste matchs_possibles
+            # alors création de cette liste et ajout dans la base de données du tournoi
             if matchs_possibles == []:
                 combinaisons_matchs_possibles = fonctions_controleur.combinaisons_possibles(liste_id_triee)
                 matchs_possibles = {
@@ -72,18 +90,32 @@ def lancer_tours(
                     matchs_possibles,
                 )
 
+            # liste_joueurs_triee contient une liste de dictionnaires rassemblant
+            # l'ensemble des données de chaque joueur du tournoi
             liste_joueurs_triee = interactions_controleur_modele.rechercher_liste_joueurs(db_tournoi, liste_id_triee)
 
         else:
+            # Tri des joueurs en fonction de leur nombre de points dans le tournoi
+            # Mise à jour de la liste_id_triee en fonction du nombre de points des joueurs
             liste_joueurs_triee = preparation.trier_joueurs_par_points(db_tournoi, tournoi.liste_joueurs)
             liste_id_triee = [joueur["identifiant"] for joueur in liste_joueurs_triee]
 
+        # Si le lancement du tour est demandé par le menu "Reprendre un tournoi en cours"
         if type_lancement == "load" and liste_matchs != []:
             donnees_joueur_exempte = ""
             type_lancement = ""
             tour.matchs = liste_matchs
 
         else:
+            # Génération des appariements
+            # Mise en variable des données du joueur exempté
+
+            # La variable donnees_joueur_exempte contient un dictionnaire rassemblant
+            # toutes les informations du joueur exempté
+
+            # La fonction generer_appariements renvoie un tuple contenant dans l'ordre :
+            # 1- les informations du joueur exempté
+            # 2- la liste des matchs du tour contenant les 2 identifiants des joueurs pour chaque match
             no_match = 1
             appariements = preparation.generer_appariements(
                 db_tournoi,
@@ -99,9 +131,12 @@ def lancer_tours(
                 joueur_exempte = classes.Joueur(**donnees_joueur_exempte)
                 interactions_controleur_modele.affecter_point_joueur_exempte(db_tournoi, joueur_exempte)
 
+            # liste_matchs contient un tuple (identifiant_joueur, nombre_points)
             liste_matchs = appariements[1]
             tour.matchs = liste_matchs
 
+            # Pour chaque match, on ajoute dans la base de données du tournoi dans la catégorie liste_matchs_round_x
+            # un dictionnaire contenant le nom du match et les données associées
             i = 1
             for element in liste_matchs:
                 donnees_match = {"nom": "match " + str(i), "donnees": element}
@@ -111,12 +146,17 @@ def lancer_tours(
                     donnees_match,
                 )
                 i += 1
+
+        # Pour chaque tuple de la variable element, on extrait l'identifiant des joueurs pour créer match_a_tester
+        # La variable _ (underscore) prend pour valeur le nombre de points. Elle n'est pas utilisée
         for element in liste_matchs:
             id1, _ = element[0]
             id2, _ = element[1]
             match_a_tester = (id1, id2)
             match_a_tester_ordonne = tuple(sorted(match_a_tester))
 
+            # Suppression du match_a_tester des combinaisons_matchs_possibles
+            # Actualisation de la liste des matchs_jouables présente dans la base de données du tournoi
             try:
                 combinaisons_matchs_possibles.remove(match_a_tester_ordonne)
                 fonctions_modele.actualisation_element_db(
@@ -132,10 +172,13 @@ def lancer_tours(
                 pass
 
         for match_tournoi in liste_matchs:
+            # liste_joueurs contient chaque instance de la classe Joueur
+            # La variable joueur contient le tuple (id_joueur, nombre_points)
             liste_joueurs = [
                 classes.Joueur(**interactions_controleur_modele.rechercher_liste_joueurs(db_tournoi, [joueur[0]]))
                 for joueur in match_tournoi
             ]
+            # Les variables joueur1 et joueur2 contiennent l'instance de classe de chaque Joueur
             joueur1 = liste_joueurs[0]
             joueur2 = liste_joueurs[1]
             match_x = classes.Match(
@@ -145,6 +188,7 @@ def lancer_tours(
                 joueur1.identifiant,
                 joueur2.identifiant,
             )
+            # On annonce le match et on demande à l'utilisateur de saisir l'identifiant du gagnant
             information_utilisateur.annonce_match(joueur1, joueur2, no_match)
             id_gagnant = saisie_utilisateur.saisie_id_gagnant()
             if id_gagnant == "Menu":
@@ -154,6 +198,8 @@ def lancer_tours(
                 id_gagnant = saisie_utilisateur.saisie_id_gagnant()
                 if id_gagnant == "Menu":
                     return
+
+            # On déclare la fin du match et on met à jour les points des joueurs dans la base de données du tournoi
             match_x.fin()
             match id_gagnant:
                 case joueur1.identifiant:
@@ -177,6 +223,10 @@ def lancer_tours(
                     interactions_controleur_modele.actualiser_points_joueur(
                         db_tournoi, joueur2.nombre_points, joueur2.identifiant
                     )
+
+            # Ajout des données du match terminé dans la base de données du tournoi
+            # Affichage d'un message de succès de la sauvegarde
+            # On passe au match suivant
             fonctions_modele.ajout_donnees_json(
                 db_tournoi,
                 "matchs_termines_round_" + str(tournoi.tour_actuel),
@@ -185,16 +235,24 @@ def lancer_tours(
             message_succes.sauvegarde("match")
             no_match += 1
 
+        # A la fin de tout les matchs, on déclare la fin du tour
+        # Ajout des données du tour dans la base de données du tournoi
         tour.fin()
         information_utilisateur.fin_tour(tour.nom)
         fonctions_modele.ajout_donnees_json(db_tournoi, "tours", tour.__dict__)
         message_succes.sauvegarde("tour")
 
+        # Accord utilisateur nécessaire pour passer au tour suivant
         if tournoi.tour_actuel < int(tournoi.nombre_tours):
             tour_suivant_accord_utilisateur = saisie_utilisateur.tour_suivant()
             if tour_suivant_accord_utilisateur == "N":
                 return
 
+    # A la fin de tout les tours, on déclare la fin du tournoi
+    # Actualisation de la base de données principale
+    # Actualisation de la base de données du tournoi
+    # Création du classement
+    # Affichage du classement
     tournoi.fin()
     fonctions_modele.actualisation_element_db(
         DB,
@@ -211,10 +269,15 @@ def lancer_tours(
 
 
 def reprendre_tournoi(categorie):
+    # La variable liste_tournois_en_cours contient les dictionnaires de tout les tournois en cours
     liste_tournois_en_cours = fonctions_controleur.afficher_tournois(DB, categorie, "date_fin", "", "en_cours")
     if liste_tournois_en_cours == []:
+        # Le message d'erreur est généré dans la fonction afficher_tournois
         pass
     else:
+        # Récupération du nom des tournois en cours
+        # Saisie utilisateur du nom du tournoi à reprendre
+        # Boucle while si la saisie utilisateur n'est pas un tournoi en cours
         noms_tournois_en_cours = [tournoi["nom"] for tournoi in liste_tournois_en_cours]
 
         nom_tournoi = saisie_utilisateur.lancer_tournoi()
@@ -226,24 +289,35 @@ def reprendre_tournoi(categorie):
             if nom_tournoi == "Menu":
                 return
 
+        # Récupération de données du tournoi enregistrées dans la base de données principale
+        # Création d'une instance de classe Tournoi
         liste_donnees_tournoi = interactions_controleur_modele.donnees_a_rechercher(DB, categorie, "nom", nom_tournoi)
         donnees_tournoi = liste_donnees_tournoi[0]
         tournoi = classes.Tournoi(**donnees_tournoi)
 
+        # Récupération du chemin de fichier de la base de données du tournoi
         db_tournoi = fonctions_controleur.chemin_fichier(tournoi.identifiant)
         nombre_matchs_par_tour = tournoi.calculer_nombre_match_par_tour()
 
+        # Pour chaque tour du tournoi, on cherche dans la base de données du tournoi
+        # si le tour a déjà été commencé. On sort de la boucle en gardant le tournoi.tour_actuel
         for i in range(1, int(tournoi.nombre_tours) + 1):
             donnees = fonctions_modele.recherche_donnees_json(db_tournoi, "tours", "nom", "Round " + str(i))
             if donnees == []:
                 tournoi.tour_actuel = i
                 break
+
+        # Récupération de la liste des matchs_possibles enregistrée dans la base de données tournoi
+        # La variable data_matchs_possibles contient une liste de tout les matchs possibles
+        # qui sont enregistrés sous forme de liste de 2 éléments
+        # La compréhension de liste transforme chaque "match_possible" en un tuple
         matchs_possibles = fonctions_modele.recherche_donnees_json(
             db_tournoi, "liste_matchs_possibles", "nom", "matchs_possibles"
         )[0]
         data_matchs_possibles = matchs_possibles["matchs_jouables"]
         combinaisons_matchs_possibles = [tuple(element) for element in data_matchs_possibles]
 
+        # Récupération des données des matchs du dernier tour enregistré
         donnees_matchs = []
         for j in range(1, int(nombre_matchs_par_tour) + 1):
             try:
@@ -258,10 +332,14 @@ def reprendre_tournoi(categorie):
             except IndexError:
                 pass
 
+        # Création des tuples contenant les données des joueurs
+        # element[0] : tuple contenant l'identifiant et le nombre de points du joueur 1
+        # element[1] : tuple contenant l'identifiant et le nombre de points du joueur 2
         for element in donnees_matchs:
             element[0] = tuple(element[0])
             element[1] = tuple(element[1])
 
+        # Récupération du numéro du dernier match joué dans le tour_actuel
         for i in range(1, int(nombre_matchs_par_tour) + 1):
             donnees = fonctions_modele.recherche_donnees_json(
                 db_tournoi,
@@ -275,6 +353,7 @@ def reprendre_tournoi(categorie):
             else:
                 donnees_matchs.pop(i - 1)
 
+        # Lancement du tour avec les informations passées en paramètre
         lancer_tours(
             tournoi,
             db_tournoi,

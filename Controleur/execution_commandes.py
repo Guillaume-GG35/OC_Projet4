@@ -217,6 +217,8 @@ def afficher_tournois_et_tours():
     resultat = fonctions_modele.recherche_table(DB, "tournoi")
     noms_tournois = []
     tournoi_termine = []
+    # Remplissage des listes noms_tournois et tournoi_termine
+    # Affichage des tournois terminés
     for element in resultat:
         noms_tournois.append(element["nom"])
         if element["date_fin"] != "":
@@ -239,9 +241,14 @@ def afficher_tournois_et_tours():
     id_tournoi = donnees["identifiant"]
     chemin = fonctions_controleur.chemin_fichier(id_tournoi)
     fichier_existe = verifications.fichier_donnees_existe(chemin)
+
+    # Si la base de données du tournoi demandé existe
     if fichier_existe:
         tours = fonctions_modele.recherche_table(chemin, "tours")
         i = 1
+
+        # alors pour chaque tour on récupère dans une liste
+        # le nom, la date_debut et la date_fin
         for element in tours:
             tour = []
             matchs = fonctions_modele.recherche_table(chemin, "matchs_termines_round_" + str(i))
@@ -252,9 +259,11 @@ def afficher_tournois_et_tours():
             tour.append(date_debut)
             tour.append(date_fin)
             information_utilisateur.afficher_element("rapport_tournoi", tour)
+            # puis on entre ces données dans le fichier texte
             with open(fichier_rapport, "a") as f:
                 f.write(f"\n- {tour[0]} - {tour[1]} - {tour[2]}\n")
 
+            # Pour chaque match, récupération du numéro et des informations du match et des joueurs
             for element in matchs:
                 match = []
                 no_match = element["no_match"]
@@ -265,8 +274,12 @@ def afficher_tournois_et_tours():
                 donnees_j2 = fonctions_modele.recherche_donnees_json(chemin, "joueur", "identifiant", joueur2)[0]
                 donnees_gagnant = fonctions_modele.recherche_donnees_json(chemin, "joueur", "identifiant", gagnant)
 
+                # Données gagnant contient une liste d'un seul dictionnaire
+                # On modifie cette liste pour en extraire le dictionnaire.
                 if donnees_gagnant != []:
                     donnees_gagnant = donnees_gagnant[0]
+
+                # Ajout dans une liste des données à afficher
                 match.append(no_match)
                 match.append(f"{donnees_j1["prenom"]} {donnees_j1["nom"]}")
                 match.append(f"{donnees_j2["prenom"]} {donnees_j2["nom"]}")
@@ -276,6 +289,7 @@ def afficher_tournois_et_tours():
 
                 else:
                     match.append(f"{donnees_gagnant["prenom"]} {donnees_gagnant["nom"]}")
+
                 information_utilisateur.afficher_element("matchs", match)
 
                 with open(fichier_rapport, "a") as f:

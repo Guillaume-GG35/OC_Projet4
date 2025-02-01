@@ -10,6 +10,8 @@ def donnees_a_rechercher(nom_db, categorie, nom_recherche, chercher_saisie_utili
     if categorie == "tournoi" and nom_recherche == "date_debut" and donnees == []:
         information_utilisateur.liste_simple_tournois(donnees)
 
+    # Si la recherche de données ne renvoie pas de résultat
+    # alors affichage d'un message d'erreur
     elif donnees == [] or donnees == "" or donnees is None:
         message_erreur.recherche_vide()
         return False
@@ -74,6 +76,8 @@ def actualiser_points_joueur(nom_db, nombre_points, identifiant):
 def affecter_point_joueur_exempte(db_tournoi, joueur_exempte):
     joueur_exempte.nombre_points += 1
     joueur_exempte.nombre_exempte += 1
+
+    # Affectation du nouveau solde de points du joueur
     fonctions_modele.actualisation_element_db(
         db_tournoi,
         "joueur",
@@ -82,6 +86,8 @@ def affecter_point_joueur_exempte(db_tournoi, joueur_exempte):
         "identifiant",
         joueur_exempte.identifiant,
     )
+
+    # Enregistrement d'un tour d'exemption supplémentaire
     fonctions_modele.actualisation_element_db(
         db_tournoi,
         "joueur",
