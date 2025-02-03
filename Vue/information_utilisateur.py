@@ -173,11 +173,6 @@ def afficher_nombre_matchs(nb_matchs):
 
 def afficher_nombre_tours(nb_tours):
     CONSOLE.print(f"Le nombre de tours conseillés est de {nb_tours} tours.", style="bold yellow")
-    CONSOLE.print("ATTENTION :", style="bold yellow")
-    CONSOLE.print(
-        "L'algorithme d'appariements peut afficher des résultats inattendus si une valeur différente est entrée.",
-        style="bold yellow",
-    )
 
 
 def rapport_exporte(nom_fichier):
