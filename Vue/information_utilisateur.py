@@ -20,7 +20,7 @@ def afficher_infos(categorie, donnees):
             liste_joueurs = interactions_controleur_modele.rechercher_liste_joueurs(DB, id_joueurs)
             print()
             CONSOLE.print(
-                "[bold yellow]Identifiant : [/bold yellow]",
+                "[bold yellow]Identifiant :[/bold yellow]",
                 f"[bold white]{donnees['identifiant']}\n[/bold white]",
                 "[bold yellow]Nom du tournoi :[/bold yellow]",
                 f"[bold white]{donnees['nom']}\n[/bold white]",
@@ -37,9 +37,9 @@ def afficher_infos(categorie, donnees):
 
             for joueur in liste_joueurs:
                 CONSOLE.print(
-                    f"[bold white]{joueur['identifiant']} [/bold white]",
-                    f"[bold white]- {joueur['nom']} [/bold white]",
-                    f"[bold white]{joueur['prenom']} [/bold white]",
+                    f"[bold white]{joueur['identifiant']} /bold white]",
+                    f"[bold white]- {joueur['nom']}[/bold white]",
+                    f"[bold white]{joueur['prenom']}[/bold white]",
                     f"[bold white]- {joueur['date_naissance']}[/bold white]",
                 )
 
@@ -86,19 +86,16 @@ def afficher_nom_round(nom_round):
 def joueur_exempte(nom_joueur, prenom_joueur, id_joueur):
     CONSOLE.print("[white]Un nombre impair de joueurs a été trouvé.[/white]")
     CONSOLE.print(
-        f"[white]{prenom_joueur} {nom_joueur} [/white]",
+        f"[white]{prenom_joueur} {nom_joueur}[/white]",
         f"[white]({id_joueur}) est exempté pour ce tour.[/white]",
     )
     CONSOLE.print("[white]1 point lui est attribué en compensation.[/white]", end="\n\n")
 
 
-def annonce_match(joueur1, joueur2, no_match):
+def annonce_matchs_debut_round(nom_joueur1, id_j1, nom_joueur2, id_j2, no_match):
     CONSOLE.print(
-        f"[white]Le Match n°{no_match} oppose [/white]",
-        f"[white bold]{joueur1.prenom} {joueur1.nom} [/white bold]",
-        f"[white bold]({joueur1.identifiant})[/white bold]",
-        f"[white]et [bold]{joueur2.prenom} [/white][/bold]",
-        f"[white bold]{joueur2.nom} ({joueur2.identifiant})[/white bold]",
+        f"[bold cyan]Le match n°{no_match} oppose les joueurs[/bold cyan]",
+        f"[bold cyan]{nom_joueur1} ({id_j1}) et {nom_joueur2} ({id_j2})[/bold cyan]",
     )
 
 
@@ -177,3 +174,13 @@ def afficher_nombre_tours(nb_tours):
 
 def rapport_exporte(nom_fichier):
     CONSOLE.print(f"\nLe rapport [bold cyan]{nom_fichier}[/bold cyan] a été créé.", style="bold green")
+
+
+def information_restauration_fichiers():
+    print()
+    CONSOLE.print("Le programme va restaurer l'ensemble des fichiers ci-dessus.", style="bold red")
+
+
+def date_sauvegarde(element):
+    print()
+    CONSOLE.print(f"[bold yellow]Cette sauvegarde a été créée le [/bold yellow][bold white]{element}[/bold white]")

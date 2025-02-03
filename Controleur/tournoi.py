@@ -108,7 +108,6 @@ def lancer_tours(
 
         else:
             # Génération des appariements
-            # Mise en variable des données du joueur exempté
 
             # La variable donnees_joueur_exempte contient un dictionnaire rassemblant
             # toutes les informations du joueur exempté
@@ -131,7 +130,7 @@ def lancer_tours(
                 joueur_exempte = classes.Joueur(**donnees_joueur_exempte)
                 interactions_controleur_modele.affecter_point_joueur_exempte(db_tournoi, joueur_exempte)
 
-            # liste_matchs contient un tuple (identifiant_joueur, nombre_points)
+            # liste_matchs contient une liste de 2 tuples contenant chacun : (identifiant_joueur, nombre_points)
             liste_matchs = appariements[1]
             tour.matchs = liste_matchs
 
@@ -149,6 +148,7 @@ def lancer_tours(
 
         # Pour chaque tuple de la variable element, on extrait l'identifiant des joueurs pour créer match_a_tester
         # La variable _ (underscore) prend pour valeur le nombre de points. Elle n'est pas utilisée
+        count = no_match
         for element in liste_matchs:
             id1, _ = element[0]
             id2, _ = element[1]
@@ -170,6 +170,14 @@ def lancer_tours(
 
             except ValueError:
                 pass
+            # Récupération du nom des joueurs pour affichage des matchs du tour en cours
+            infos_joueurs = interactions_controleur_modele.rechercher_liste_joueurs(db_tournoi, [id1, id2])
+            joueurs = []
+            for element in infos_joueurs:
+                joueurs.append(f"{element["nom"]} {element["prenom"]}")
+
+            information_utilisateur.annonce_matchs_debut_round(joueurs[0], id1, joueurs[1], id2, count)
+            count += 1
 
         for match_tournoi in liste_matchs:
             # liste_joueurs contient chaque instance de la classe Joueur
@@ -188,14 +196,15 @@ def lancer_tours(
                 joueur1.identifiant,
                 joueur2.identifiant,
             )
-            # On annonce le match et on demande à l'utilisateur de saisir l'identifiant du gagnant
-            information_utilisateur.annonce_match(joueur1, joueur2, no_match)
-            id_gagnant = saisie_utilisateur.saisie_id_gagnant()
+
+            # On demande à l'utilisateur de saisir l'identifiant du gagnant
+            id_gagnant = saisie_utilisateur.saisie_id_gagnant(no_match)
             if id_gagnant == "Menu":
                 return
             while id_gagnant != joueur1.identifiant and id_gagnant != joueur2.identifiant and id_gagnant != "":
                 message_erreur.erreur_saisie()
-                id_gagnant = saisie_utilisateur.saisie_id_gagnant()
+                message_erreur.choix_possibles(joueur1.identifiant, joueur2.identifiant)
+                id_gagnant = saisie_utilisateur.saisie_id_gagnant(no_match)
                 if id_gagnant == "Menu":
                     return
 
@@ -241,12 +250,6 @@ def lancer_tours(
         information_utilisateur.fin_tour(tour.nom)
         fonctions_modele.ajout_donnees_json(db_tournoi, "tours", tour.__dict__)
         message_succes.sauvegarde("tour")
-
-        # Accord utilisateur nécessaire pour passer au tour suivant
-        if tournoi.tour_actuel < int(tournoi.nombre_tours):
-            tour_suivant_accord_utilisateur = saisie_utilisateur.tour_suivant()
-            if tour_suivant_accord_utilisateur == "N":
-                return
 
     # A la fin de tout les tours, on déclare la fin du tournoi
     # Actualisation de la base de données principale

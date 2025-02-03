@@ -136,3 +136,12 @@ def calculer_nombre_tours(nb_joueurs):
         nb_tours = nb_joueurs
 
     return nb_tours
+
+
+def taille_fichiers_differente(fichier1, fichier2):
+    if os.path.getsize(fichier1) != os.path.getsize(fichier2):
+        message_erreur.fichiers_differents(fichier1, fichier2)
+        message_erreur.avertissement_perte_donnees()
+        return True
+    else:
+        return False

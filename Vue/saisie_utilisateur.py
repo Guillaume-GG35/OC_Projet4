@@ -224,7 +224,9 @@ def lancer_tournoi():
         return nom_tournoi
 
 
-def saisie_id_gagnant():
+def saisie_id_gagnant(no_match):
+    print()
+    CONSOLE.print(f"[bold white]LE MATCH N°{no_match} EST LANCE :[/bold white]")
     gagnant = saisie_utilisateur("id du gagnant (vide = match nul)", STRNUM_OR_EMPTY)
     if gagnant == "*":
         return "Menu"
@@ -238,5 +240,14 @@ def tour_suivant():
     while saisie_utilisateur != "o" and saisie_utilisateur != "N":
         message_erreur.message_erreur_yes_No()
         saisie_utilisateur = input("Souhaitez-vous lancer le tour suivant ? [o/N] : ")
+
+    return saisie_utilisateur
+
+
+def continuer():
+    saisie_utilisateur = input("Souhaitez-vous continuer ? [o/N] : ")
+    while saisie_utilisateur != "o" and saisie_utilisateur != "N":
+        message_erreur.message_erreur_yes_No()
+        saisie_utilisateur = input("Souhaitez-vous continuer ? [o/N] : ")
 
     return saisie_utilisateur

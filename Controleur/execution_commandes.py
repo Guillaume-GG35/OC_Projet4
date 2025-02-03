@@ -15,8 +15,9 @@ from Controleur import (
     tournoi,
 )
 
-from Controleur.constantes import DB, STRING, RAPPORTS
+from Controleur.constantes import DB, STRING, RAPPORTS, CHEMIN_DB_TOURNOIS, CHEMIN_BACKUP_TOURNOIS, CHEMIN_BACKUP_DB
 import os
+import shutil
 
 
 def case1(categorie):
@@ -64,6 +65,37 @@ def case1(categorie):
                     f.write(f"- {element[0]} {element[1]}\n")
 
             information_utilisateur.rapport_exporte(fichier_rapport)
+
+        case "save/load":
+            # Section de sauvegarde des données
+
+            # Si le dossier de backup existe, on demande la confirmation d'écraser les données
+            try:
+                os.makedirs(CHEMIN_BACKUP_DB)
+            except FileExistsError:
+                message_erreur.fichier_existe()
+                message_erreur.avertissement_perte_donnees()
+                if saisie_utilisateur.continuer() == "N":
+                    return
+
+            fichiers_tournois = os.listdir(CHEMIN_DB_TOURNOIS)
+
+            # Création du dossier de sauvegarde et copie des .json de chaque tournoi
+            os.makedirs(CHEMIN_BACKUP_TOURNOIS, exist_ok=True)
+            for element in fichiers_tournois:
+                fichier_source = CHEMIN_DB_TOURNOIS + element
+                fichier_destination = CHEMIN_BACKUP_TOURNOIS + element + ".bak"
+                shutil.copyfile(fichier_source, fichier_destination)
+                message_succes.fichier_copie(fichier_destination, "creation")
+
+            # Copie du fichier data.json et enregistrelent de la date de sauvegarde
+            fichier_source = DB
+            fichier_destination = CHEMIN_BACKUP_DB + "data.json.bak"
+            shutil.copyfile(fichier_source, fichier_destination)
+            message_succes.fichier_copie(fichier_destination, "creation")
+            fichier_txt_date = os.path.join(CHEMIN_BACKUP_DB, "date_derniere_sauvegarde.txt")
+            with open(fichier_txt_date, "w") as f:
+                f.write(f"{fonctions_controleur.date_maintenant()}\n")
 
 
 def case2(categorie):
@@ -117,6 +149,67 @@ def case2(categorie):
                     f.write(f"- {element}\n")
 
             information_utilisateur.rapport_exporte(fichier_rapport)
+
+        case "save/load":
+            # Section de chargement des données sauvegardées
+
+            # Vérification de l'existence du dossier de sauvegarde
+            try:
+                os.makedirs(CHEMIN_BACKUP_DB)
+                os.rmdir(CHEMIN_BACKUP_DB)
+                message_erreur.fichier_introuvable()
+                return
+            except FileExistsError:
+                pass
+
+            # Récupération de la date de dernière sauvegarde
+            fichier_txt_date = os.path.join(CHEMIN_BACKUP_DB, "date_derniere_sauvegarde.txt")
+            with open(fichier_txt_date, "r") as f:
+                date_sauvegarde = f.readline()
+
+            # Récupération de la liste des fichiers .bak de tournois
+            # et du chemin complet de data.json.bak
+            fichiers_bak_tournois = os.listdir(CHEMIN_BACKUP_TOURNOIS)
+            fichier_bak_db = CHEMIN_BACKUP_DB + "data.json.bak"
+
+            # Recherche de la liste des tournois enregistrés dans data.json.bak
+            # Si un fichier est manquant, affichage d'un message d'erreur
+            liste_tournois_bak_db = interactions_controleur_modele.rechercher_tournois(fichier_bak_db)
+            if fichier_bak_db == "" or len(fichiers_bak_tournois) != len(liste_tournois_bak_db):
+                message_erreur.erreur_fichiers_sauvegarde()
+                return
+
+            # Affichage de la liste des fichiers à restaurer et de la date de dernière sauvegarde
+            information_utilisateur.texte_liste_disponible("fichiers de sauvegarde")
+            for element in fichiers_bak_tournois:
+                tournois = interactions_controleur_modele.donnees_a_rechercher(
+                    fichier_bak_db, "tournoi", "identifiant", element[0:6]
+                )
+                tournoi = tournois[0]
+                nom_tournoi = element + f" ({tournoi["nom"]})"
+                information_utilisateur.afficher_element("tournoi", nom_tournoi)
+            information_utilisateur.afficher_element("tournoi", "data.json.bak")
+            information_utilisateur.date_sauvegarde(date_sauvegarde)
+
+            # Demande confirmation utilisateur pour restaurer les fichiers
+            information_utilisateur.information_restauration_fichiers()
+            message_erreur.avertissement_perte_donnees()
+            if saisie_utilisateur.continuer() == "N":
+                return
+
+            # Restauration des fichiers
+            for element in fichiers_bak_tournois:
+                chemin_fichier_bak = CHEMIN_BACKUP_TOURNOIS + element
+                chemin_fichier_original = CHEMIN_DB_TOURNOIS + element[0:-4]
+                if fonctions_controleur.taille_fichiers_differente(
+                    chemin_fichier_bak, chemin_fichier_original
+                ) or fonctions_controleur.taille_fichiers_differente(fichier_bak_db, DB):
+                    if saisie_utilisateur.continuer() == "N":
+                        return
+                shutil.copyfile(chemin_fichier_bak, chemin_fichier_original)
+                message_succes.fichier_copie(chemin_fichier_original, "restauration")
+            shutil.copyfile(fichier_bak_db, DB)
+            message_succes.fichier_copie(DB, "restauration")
 
 
 def case3(categorie):

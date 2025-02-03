@@ -4,11 +4,11 @@ from Controleur.constantes import CONSOLE
 
 
 def json_introuvable(DB):
-    CONSOLE.print(f"ATTENTION : le fichier {DB} est introuvable.", style="bold red")
+    CONSOLE.print(f"ATTENTION : le fichier '{DB}' est introuvable.", style="bold red")
 
 
 def json_vide(DB):
-    CONSOLE.print(f"ATTENTION : le fichier {DB} est vide.", style="bold red")
+    CONSOLE.print(f"ATTENTION : le fichier '{DB}' est vide.", style="bold red")
 
 
 def erreur(type_donnee):
@@ -122,3 +122,32 @@ def erreur_saisie():
 def erreur_match():
     CONSOLE.print("Une erreur s'est produite durant l'appariement des joueurs.", style="bold red")
     CONSOLE.print("Le tournoi ne peut pas continuer.", style="bold red")
+
+
+def choix_possibles(id_joueur1, id_joueur2):
+    CONSOLE.print(f"Les choix possibles sont '{id_joueur1}' ou '{id_joueur2}'", style="bold red")
+
+
+def fichier_existe():
+    print()
+    CONSOLE.print("Des fichiers de sauvegarde existent déjà.", style="bold red")
+
+
+def fichiers_differents(fichier1, fichier2):
+    print()
+    CONSOLE.print(f"Les fichiers '{fichier1}' et '{fichier2}' sont différents.", style="bold red")
+
+
+def avertissement_perte_donnees():
+    CONSOLE.print("ATTENTION : SI VOUS CONTINUEZ, DES DONNEES IMPORTANTES PEUVENT ETRE PERDUES !", style="bold red")
+
+
+def fichier_introuvable():
+    CONSOLE.print("Il n'existe aucun fichier de sauvegarde à restaurer.", style="bold red")
+
+
+def erreur_fichiers_sauvegarde():
+    print()
+    CONSOLE.print("Une erreur est survenue dans la lecture des fichiers de sauvegarde.", style="bold red")
+    CONSOLE.print("Certains fichiers de données sont peut-être manquants.", style="bold red")
+    CONSOLE.print("La sauvegarde du fichier 'data.json' est peut-être corrompue.", style="bold red")

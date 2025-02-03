@@ -16,6 +16,7 @@ def menus_disponibles(id_menu):
                 "1-Joueurs",
                 "2-Tournois",
                 "3-Rapports",
+                "4-Sauvegarder/charger",
                 "0-Quitter",
             ]
         case "joueur":
@@ -47,6 +48,14 @@ def menus_disponibles(id_menu):
                 "0-Retour au menu principal",
             ]
 
+        case "save/load":
+            # Entrées du menu Sauvegarder/charger
+            choix_disponibles = [
+                "1-Effectuer une copie de sauvegarde des bases de données",
+                "2-Charger une base de données",
+                "0-Retour au menu principal",
+            ]
+
     return choix_disponibles
 
 
@@ -67,18 +76,23 @@ def run():
             message_succes.fin_programme()
 
         case "1":
-            # Demande à la vue l'affichage du sous-menu "Joueur"
+            # Demande l'affichage du sous-menu "Joueur"
             categorie = "joueur"
             sous_menu(categorie)
 
         case "2":
-            # Demande à la vue l'affichage du sous-menu "Tournoi"
+            # Demande l'affichage du sous-menu "Tournoi"
             categorie = "tournoi"
             sous_menu(categorie)
 
         case "3":
-            # Demande à la vue l'affichage du sous-menu "Rapport"
+            # Demande l'affichage du sous-menu "Rapport"
             categorie = "rapport"
+            sous_menu(categorie)
+
+        case "4":
+            # Demande l'affichage du sous-menu "Sauvegarde/chargement"
+            categorie = "save/load"
             sous_menu(categorie)
 
 

@@ -37,3 +37,12 @@ def sauvegarde(element):
         style="bold green",
         end="\n\n",
     )
+
+
+def fichier_copie(fichier_destination, type):
+    print()
+    match type:
+        case "creation":
+            CONSOLE.print(f"Le fichier {fichier_destination} a été créé avec succès !", style="bold cyan")
+        case "restauration":
+            CONSOLE.print(f"Le fichier {fichier_destination} a été restauré avec succès !", style="bold cyan")
